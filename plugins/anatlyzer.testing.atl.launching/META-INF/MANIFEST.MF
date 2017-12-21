@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Launching facilities for ATL
+Bundle-SymbolicName: anatlyzer.testing.launching
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: anatlyzer.testing.atl.launching.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.m2m.atl.core,
+ org.eclipse.m2m.atl.core.emf,
+ org.eclipse.m2m.atl.engine,
+ org.eclipse.m2m.atl.engine.emfvm.launch
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: anatlyzer.testing.atl.launching
