@@ -20,16 +20,16 @@ public class ParentRuleModificationMutator extends AbstractMutator {
 		Module module = wrapper.getModule();
 		EDataTypeEList<String> comments = null;
 		if (module!=null) {
-			EStructuralFeature feature = wrapper.source(module).eClass().getEStructuralFeature("commentsBefore");	
-			comments = (EDataTypeEList<String>)wrapper.source(module).eGet(feature);
+			EStructuralFeature feature = module.eClass().getEStructuralFeature("commentsBefore");	
+			comments = (EDataTypeEList<String>)module.eGet(feature);
 		}
 		
 		// for each matched rule
 		for (MatchedRule rule : (List<MatchedRule>)wrapper.allObjectsOf(MatchedRule.class)) {
 			
 			// obtain current parent rule 
-			EStructuralFeature feature   = wrapper.source(rule).eClass().getEStructuralFeature("superRule");
-			Object             superrule = wrapper.source(rule).eGet(feature);
+			EStructuralFeature feature   = rule.eClass().getEStructuralFeature("superRule");
+			Object             superrule = rule.eGet(feature);
 					
 			// matched rules
 			List<MatchedRule> parents = (List<MatchedRule>)wrapper.allObjectsOf(MatchedRule.class);
@@ -48,7 +48,7 @@ public class ParentRuleModificationMutator extends AbstractMutator {
 			for (MatchedRule parent : parents) {
 					
 				// mutation: modify parent rule
-				wrapper.source(rule).eSet(feature, wrapper.source(parent));
+				rule.eSet(feature, parent);
 
 				// mutation: documentation
 				if (comments!=null) comments.add("\n-- MUTATION \"" + this.getDescription() + "\" " + toString(parent) + " in " + toString(rule) + " (line " + rule.getLocation() + " of original transformation)\n");
@@ -58,7 +58,7 @@ public class ParentRuleModificationMutator extends AbstractMutator {
 				// restore original parent rule
 				final EDataTypeEList<String> fComments = comments;
 				registerUndo(wrapper, () -> {
-					wrapper.source(rule).eSet(feature, superrule);
+					rule.eSet(feature, superrule);
 					if (fComments!=null) fComments.remove(fComments.size()-1);
 				});
 			}

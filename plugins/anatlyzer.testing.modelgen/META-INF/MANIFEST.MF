@@ -4,6 +4,12 @@ Bundle-Name: Generation of input models
 Bundle-SymbolicName: anatlyzer.testing.modelgen
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: anatlyzer.testing.modelgen.Activator
-Require-Bundle: org.eclipse.core.runtime
+Require-Bundle: org.eclipse.core.runtime,
+ anatlyzer.testing.common,
+ org.eclipse.emf.ecore,
+ anatlyzer.atl.typing;bundle-version="0.7.1",
+ anatlyzer.use.witness;bundle-version="0.7.1";visibility:=reexport,
+ org.eclipse.emf.ecore.xmi
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
+Export-Package: anatlyzer.testing.modelgen

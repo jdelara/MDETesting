@@ -35,4 +35,5 @@ public abstract class ModelGenerationStrategy implements Iterator<Properties>, I
 			properties.put(PROPERTY_PREFFIX + type, "0");
 		}
 	}
+
 }

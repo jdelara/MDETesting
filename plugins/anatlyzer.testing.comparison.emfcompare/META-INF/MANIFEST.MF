@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Comparison using EMFCompare
+Bundle-SymbolicName: anatlyzer.testing.comparison.emfcompare
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.emf.compare;bundle-version="3.5.1",
+ anatlyzer.testing.common;bundle-version="1.0.0"
+Export-Package: anatlyzer.testing.comparison.emfcompare

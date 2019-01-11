@@ -37,8 +37,8 @@ public class BindingCreationMutator extends AbstractMutator {
 		Module module = wrapper.getModule();
 		EDataTypeEList<String> comments = null;
 		if (module!=null) {
-			EStructuralFeature feature = wrapper.source(module).eClass().getEStructuralFeature("commentsBefore");	
-			comments = (EDataTypeEList<String>)wrapper.source(module).eGet(feature);
+			EStructuralFeature feature = module.eClass().getEStructuralFeature("commentsBefore");	
+			comments = (EDataTypeEList<String>)module.eGet(feature);
 		}
 		
 		// for each matched rule
@@ -57,8 +57,8 @@ public class BindingCreationMutator extends AbstractMutator {
 					if (classifier instanceof EClass) {
 					
 						// current bindings 
-						EStructuralFeature feature = wrapper.source(outElement).eClass().getEStructuralFeature("bindings");
-						List<Binding> realbindings = (List<Binding>)wrapper.source(outElement).eGet(feature);
+						EStructuralFeature feature = outElement.eClass().getEStructuralFeature("bindings");
+						List<Binding> realbindings = (List<Binding>)outElement.eGet(feature);
 					
 						// new bindings
 						List<Binding> newbindings = new ArrayList<Binding>();

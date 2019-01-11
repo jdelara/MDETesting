@@ -12,12 +12,25 @@ public class MutationInfo {
 	private ATLAbstractMutator mutator;
 	private LocatedElement mutatedElement;
 
-	public void setMutator(ATLAbstractMutator atlAbstractMutator) {
+	public MutationInfo(ATLAbstractMutator atlAbstractMutator, LocatedElement elem) {
 		this.mutator = atlAbstractMutator;
-	}
-
-	public void setMutatedElement(LocatedElement elem) {
 		this.mutatedElement = elem;
 	}
 
+	public MutationInfo(ATLAbstractMutator atlAbstractMutator) {
+		this(atlAbstractMutator, null);
+	}
+
+	public ATLAbstractMutator getMutator() {
+		return mutator;
+	}
+	
+	public LocatedElement getMutatedElement() {
+		return mutatedElement;
+	}
+	
+	public String getMutatorName() {
+		return mutator.getClass().getSimpleName();
+	}
+	
 }

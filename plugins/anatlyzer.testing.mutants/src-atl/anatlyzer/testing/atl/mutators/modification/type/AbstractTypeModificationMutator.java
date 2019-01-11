@@ -59,18 +59,18 @@ public abstract class AbstractTypeModificationMutator extends AbstractMutator {
 		Module module = wrapper.getModule();
 		EDataTypeEList<String> comments = null;
 		if (module!=null) {
-			EStructuralFeature f = wrapper.source(module).eClass().getEStructuralFeature("commentsBefore");	
-			comments = (EDataTypeEList<String>)wrapper.source(module).eGet(f);
+			EStructuralFeature f = module.eClass().getEStructuralFeature("commentsBefore");	
+			comments = (EDataTypeEList<String>)module.eGet(f);
 		}
 
 		// generate mutants
 		for (ToModify object2modify : modifiable) {
-			EStructuralFeature featureDefinition = wrapper.source(object2modify).eClass().getEStructuralFeature(featureName);
+			EStructuralFeature featureDefinition = object2modify.eClass().getEStructuralFeature(featureName);
 			
 			// CASE 1: monovalued feature .........................................................
 			
 			if (featureDefinition!=null && featureDefinition.getUpperBound() == 1) {
-				EObject object2modify_src = wrapper.source(object2modify);			
+				EObject object2modify_src = object2modify;			
 				EObject oldFeatureValue   = (EObject)object2modify_src.eGet(featureDefinition); 
 
 				if (oldFeatureValue!=null) {
@@ -106,7 +106,7 @@ public abstract class AbstractTypeModificationMutator extends AbstractMutator {
 			// CASE 2: multivalued feature ........................................................
 			
 			else if (featureDefinition!=null) {
-				List<EObject> value = (List<EObject>)wrapper.source(object2modify).eGet(featureDefinition);
+				List<EObject> value = (List<EObject>)object2modify.eGet(featureDefinition);
 				
 				for (int i=0; i<value.size(); i++) {
 					

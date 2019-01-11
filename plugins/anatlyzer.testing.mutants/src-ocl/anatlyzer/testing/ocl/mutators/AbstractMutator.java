@@ -121,8 +121,8 @@ public abstract class AbstractMutator extends ATLAbstractMutator {
 		Module module = atlModel.getModule();
 		EDataTypeEList<String> comments = null;
 		if (module!=null) {
-			EStructuralFeature f = atlModel.source(module).eClass().getEStructuralFeature("commentsBefore");	
-			comments = (EDataTypeEList<String>)atlModel.source(module).eGet(f);
+			EStructuralFeature f = module.eClass().getEStructuralFeature("commentsBefore");	
+			comments = (EDataTypeEList<String>)module.eGet(f);
 		}
 		return comments;
 	}

@@ -7,14 +7,14 @@ import anatlyzer.atl.model.ATLModel;
 import anatlyzer.atlext.ATL.LocatedElement;
 
 public class ATLAbstractMutator {
-	protected IStorageStrategy storage;
+	protected IStorageStrategy storage = IStorageStrategy.NULL;
 	
 	public void setStorageStrategy(IStorageStrategy strategy) {
 		this.storage = strategy;
 	}
 	
 	protected void registerUndo(ATLModel mutatedModel, Runnable undo) {
-		registerUndo(mutatedModel, new MutationInfo(), undo);
+		registerUndo(mutatedModel, new MutationInfo(this), undo);
 	}
 	
 	protected void registerUndo(ATLModel mutatedModel, MutationInfo info, Runnable undo) {
@@ -23,10 +23,7 @@ public class ATLAbstractMutator {
 	}
 	
 	public MutationInfo info(LocatedElement elem) {
-		MutationInfo info = new MutationInfo();
-		info.setMutator(this);
-		info.setMutatedElement(elem);
-		return info;
+		return new MutationInfo(this, elem);
 	}
 	
 	// Copied from EMFModel#newElement

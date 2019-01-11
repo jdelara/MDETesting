@@ -23,7 +23,7 @@ public abstract class AbstractChangeStringValue extends AbstractMutator {
 		List<String>           values     = getValues(); 
 		
 		for (ToModify element : modifiable) {
-			EObject            original_element = wrapper.source(element);
+			EObject            original_element = element;
 			EStructuralFeature feature          = original_element.eClass().getEStructuralFeature(featureName);
 			EStructuralFeature feature_args     = original_element.eClass().getEStructuralFeature("arguments");
 			String             original_value   = original_element.eGet(feature).toString(); 

@@ -33,7 +33,7 @@ public class WCO1 extends AbstractMutator {
 		List<NavigationOrAttributeCallExp> navigations = (List<NavigationOrAttributeCallExp>)wrapper.allObjectsOf(NavigationOrAttributeCallExp.class);
 		
 		for (NavigationOrAttributeCallExp navigation : navigations) {
-			EObject            original_navigation = wrapper.source(navigation);
+			EObject            original_navigation = navigation;
 			String             original_value   = navigation.getName();
 			EStructuralFeature feature          = original_navigation.eClass().getEStructuralFeature("name");
 			OclExpression      variable         = navigation.getSource();

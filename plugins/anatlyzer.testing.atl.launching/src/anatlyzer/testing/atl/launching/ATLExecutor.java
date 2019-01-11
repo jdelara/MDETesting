@@ -5,7 +5,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.ecore.EObject;
@@ -36,38 +38,110 @@ public class ATLExecutor {
 	private String transformationFile;
 	private String temporalAsmPath = null;
 	
-	private ArrayList<ModelData> modelData;
+	private List<ModelData> modelData;
 
 	private ILauncher launcher;
 	
-	public static class ModelData {
-		public final String metamodelName;
+	public static abstract class ModelData {
+		protected ModelKind kind;
+		protected String metamodelName;
+		protected String modelName;
+		protected IModel loadedModel;
+
+		public ModelData(String modelName, String metamodelName, ModelKind kind) {
+			this.metamodelName = metamodelName;
+			this.modelName = modelName;
+			this.kind = kind;				
+		}
+		
+		public ModelKind getKind() {
+			return kind;
+		}
+
+		public abstract void load();
+
+		public String getMetamodelName() {
+			return metamodelName;
+		}
+
+		public String getModelName() {
+			return modelName;
+		}
+
+		public IModel getLoadedModel() {
+			return loadedModel;
+		}
+
+		
+		public abstract void save() throws ATLCoreException;
+		
+	}
+	
+	public static class ModelDataResourceBased extends ModelData {
+
+		private Resource modelResource;
+		private Resource mmResource;
+		private IReferenceModel loadedMetamodel;
+		private String newModelPath;
+
+		public ModelDataResourceBased(String modelName, Resource modelResource, String metamodelName, Resource mmResource, ModelKind kind) {
+			super(modelName, metamodelName, kind);
+			this.modelResource = modelResource;
+			this.mmResource = mmResource;
+		}		
+		
+		public ModelDataResourceBased(String modelName, String modelPath, String metamodelName, Resource mmResource, ModelKind kind) {
+			super(modelName, metamodelName, kind);
+			this.modelResource = null;
+			this.mmResource = mmResource;
+			this.newModelPath = modelPath;
+		}
+
+		public void load() {
+			try {
+				ModelFactory factory = new EMFModelFactory();
+				EMFInjector injector = new EMFInjector();
+			 	loadedMetamodel = factory.newReferenceModel();
+				injector.inject(loadedMetamodel, mmResource);				
+				this.loadedModel = factory.newModel(loadedMetamodel);
+				if ( kind != ModelKind.OUT) {
+					injector.inject(loadedModel, modelResource);
+				}
+			} catch ( ATLCoreException e ) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		public void save() throws ATLCoreException {
+			IExtractor extractor = new EMFExtractor();
+			extractor.extract(this.loadedModel, this.newModelPath);			
+		}
+		
+	}
+	
+	public static class ModelDataFileBased extends ModelData {		
 		public final String metamodelPath;
-		private String modelName;
 		public final String modelPath;
 		private IReferenceModel loadedMetamodel;
-		private IModel loadedModel;
-		private ModelKind kind;
 		private String newModelPath;
 		private Resource inputResource;
 		
-		public ModelData(String modelName, String modelPath, String metamodelName, String metamodelPath, ModelKind kind) {
-			this.metamodelName = metamodelName;
+		public ModelDataFileBased(String modelName, String modelPath, String metamodelName, String metamodelPath, ModelKind kind) {
+			super(modelName, metamodelName, kind);
 			this.metamodelPath = metamodelPath;
-			this.modelName = modelName;
 			this.modelPath = modelPath;    // This what it is read
 			this.newModelPath = modelPath; // This is for serialization
-			this.kind = kind;			
 		}
 
-		public ModelData(String modelName, String modelPath, String metamodelName, String metamodelPath, ModelKind kind, String newModelPath) {
+		public ModelDataFileBased(String modelName, String modelPath, String metamodelName, String metamodelPath, ModelKind kind, String newModelPath) {
 			this(modelName, modelPath, metamodelName, metamodelPath, kind);
 			if ( kind != ModelKind.INOUT )
 				throw new IllegalArgumentException();
 			this.newModelPath = newModelPath;
 		}
 		
-		public ModelData(String modelName, Resource resource, String metamodelName, String metamodelPath, ModelKind kind) {
+		public ModelDataFileBased(String modelName, Resource resource, String metamodelName, String metamodelPath, ModelKind kind) {
 			this(modelName, "no-model", metamodelName, metamodelPath, kind);
 			this.inputResource = resource;
 		}
@@ -91,6 +165,7 @@ public class ATLExecutor {
 			}
 		}
 
+		@Override
 		public void save() throws ATLCoreException {
 			IExtractor extractor = new EMFExtractor();
 			extractor.extract(this.loadedModel, this.newModelPath);
@@ -104,19 +179,27 @@ public class ATLExecutor {
 	}
 	
 	public static ModelData inModel(String modelName,  String modelPath, String metamodelName, String metamodelPath) {
-		return new ModelData(modelName, modelPath, metamodelName, metamodelPath, ModelKind.IN);
+		return new ModelDataFileBased(modelName, modelPath, metamodelName, metamodelPath, ModelKind.IN);
 	}
 
+	public static ModelData inModel(String modelName, Resource modelResource, String metamodelName, Resource mmResource) {
+		return new ModelDataResourceBased(modelName, modelResource, metamodelName, mmResource, ModelKind.IN);
+	}
+	
 	public static ModelData inModel(String modelName,  Resource resource, String metamodelName, String metamodelPath) {
-		return new ModelData(modelName, resource, metamodelName, metamodelPath, ModelKind.IN);
+		return new ModelDataFileBased(modelName, resource, metamodelName, metamodelPath, ModelKind.IN);
 	}
 
 	public static ModelData outModel(String modelName,  String modelPath, String metamodelName, String metamodelPath) {
-		return new ModelData(modelName, modelPath, metamodelName, metamodelPath, ModelKind.OUT);
+		return new ModelDataFileBased(modelName, modelPath, metamodelName, metamodelPath, ModelKind.OUT);
 	}
 
+	public static ModelData outModel(String modelName,  String modelPath, String metamodelName, Resource mmResource) {
+		return new ModelDataResourceBased(modelName, modelPath, metamodelName, mmResource, ModelKind.OUT);
+	}
+	
 	public static ModelData inOutModel(String modelName,  String modelPath, String metamodelName, String metamodelPath, String newModelPath) {
-		return new ModelData(modelName, modelPath, metamodelName, metamodelPath, ModelKind.INOUT, newModelPath);
+		return new ModelDataFileBased(modelName, modelPath, metamodelName, metamodelPath, ModelKind.INOUT, newModelPath);
 	}
 
 
@@ -130,29 +213,34 @@ public class ATLExecutor {
 		return this;
 	}
 
+	public ATLExecutor withModels(List<ModelData> models) {
+		modelData = models;
+		return this;
+	}
 	
-	public ATLExecutor perform(String transformationFile, ModelData... models) throws IOException {	
+	public ATLExecutor perform(String transformationFile, ModelData... models) throws IOException {
+		withModels(Arrays.asList(models));
+		return perform(transformationFile);
+	}
 
+	public ATLExecutor perform(String transformationFile) throws IOException {
 		this.transformationFile = transformationFile;
 		transformationFile = normalizePath(transformationFile);
 		String asmFile = compileToASMFile(transformationFile);
 		
-		return perform(new FileInputStream(asmFile), models);
+		return perform(new FileInputStream(asmFile));
 	}
-		
+	
 	public ATLExecutor perform(InputStream asmStream, ModelData... models) throws IOException {
-		modelData = new ArrayList<ATLExecutor.ModelData>();
-		for (ModelData m : models) {
-			modelData.add(m);
-		}
-		
-
-				
+		withModels(Arrays.asList(models));
+		return perform(asmStream);
+	}
+	
+	public ATLExecutor perform(InputStream asmStream) throws IOException {
 		this.launcher = null;
-		this.modelData = new ArrayList<ModelData>();
-		for (ModelData modelData : models) {
+		
+		for (ModelData modelData : this.modelData) {
 			modelData.load();
-			this.modelData.add(modelData);
 		}
 		
 		ILauncher launcher = new EMFVMLauncher();
@@ -161,20 +249,19 @@ public class ATLExecutor {
 		launcherOptions.put("allowInterModelReferences", allowInterModelReferences); // TODO: Allow configuration
 		launcher.initialize(launcherOptions);
 		
-		for (ModelData modelData : models) {
-			switch ( modelData.kind ) {
-			case IN:
-				
+		for (ModelData modelData : this.modelData) {
+			switch ( modelData.getKind() ) {
+			case IN:				
 				if ( doModelWarmup )
 					warmupModelInit(modelData);			
 				
-				launcher.addInModel(modelData.loadedModel, modelData.modelName, modelData.metamodelName);
+				launcher.addInModel(modelData.getLoadedModel(), modelData.getModelName(), modelData.getMetamodelName());
 				break;
 			case INOUT:
-				launcher.addInOutModel(modelData.loadedModel, modelData.modelName, modelData.metamodelName);
+				launcher.addInOutModel(modelData.getLoadedModel(), modelData.getModelName(), modelData.getMetamodelName());
 				break;
 			case OUT:
-				launcher.addOutModel(modelData.loadedModel, modelData.modelName, modelData.metamodelName);
+				launcher.addOutModel(modelData.getLoadedModel(), modelData.getModelName(), modelData.getMetamodelName());
 				break;
 			}
 		}
@@ -234,9 +321,10 @@ public class ATLExecutor {
 	private String compileToASMFile(String trafo) throws IOException {
 		// compile transformation
 		File trafoFile = new File(trafo);		
-		String asmTransformation = trafo.replace(".atl", ".asm");
+		
+		String asmTransformation = trafo.replaceFirst("atl$", "asm"); // trafo.replace(".atl", ".asm");
 		if ( temporalAsmPath != null ) {
-			asmTransformation = temporalAsmPath + File.separator + trafoFile.getName().replace(".atl", ".asm");
+			asmTransformation = temporalAsmPath + File.separator + trafoFile.getName().replaceFirst("atl$", "asm");
 			asmTransformation = normalizePath(asmTransformation);
 		}
 		

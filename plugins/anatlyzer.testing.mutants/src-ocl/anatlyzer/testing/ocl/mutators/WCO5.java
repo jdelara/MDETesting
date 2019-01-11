@@ -32,15 +32,15 @@ public class WCO5 extends AbstractMutator {
 				// add "not" to constraint
 				EClass             clazz               = getOperatorCallExp(wrapper.source(helper).eClass().eResource());
 				OclFeature         oclfeature          = helper.getDefinition().getFeature();
-				EObject            original_oclfeature = wrapper.source(oclfeature);
+				EObject            original_oclfeature = oclfeature;
 				EStructuralFeature feature             = null;
 				EObject            original_constraint = null;
 				if (oclfeature instanceof Operation) {
-					original_constraint = wrapper.source( ((Operation)oclfeature).getBody() );
+					original_constraint = ((Operation)oclfeature).getBody() ;
 					feature             = original_oclfeature.eClass().getEStructuralFeature("body");
 				}
 				else if (oclfeature instanceof Attribute) {
-					original_constraint = wrapper.source( ((Attribute)oclfeature).getInitExpression() );
+					original_constraint = ((Attribute)oclfeature).getInitExpression();
 					feature             = original_oclfeature.eClass().getEStructuralFeature("initExpression");
 				}
 				if (original_constraint != null) {

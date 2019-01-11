@@ -27,16 +27,16 @@ public class InElementCreationMutator extends AbstractMutator {
 		Module module = wrapper.getModule();
 		EDataTypeEList<String> comments = null;
 		if (module!=null) {
-			EStructuralFeature feature = wrapper.source(module).eClass().getEStructuralFeature("commentsBefore");	
-			comments = (EDataTypeEList<String>)wrapper.source(module).eGet(feature);
+			EStructuralFeature feature = module.eClass().getEStructuralFeature("commentsBefore");	
+			comments = (EDataTypeEList<String>)module.eGet(feature);
 		}
 		
 		// for each matched rule
 		for (MatchedRule rule : (List<MatchedRule>)wrapper.allObjectsOf(MatchedRule.class)) {
 			
 			// current in-pattern elements 
-			EStructuralFeature feature = wrapper.source(rule.getInPattern()).eClass().getEStructuralFeature("elements");
-			List<PatternElement> realelements = (List<PatternElement>)wrapper.source(rule.getInPattern()).eGet(feature);
+			EStructuralFeature feature = rule.getInPattern().eClass().getEStructuralFeature("elements");
+			List<PatternElement> realelements = (List<PatternElement>)rule.getInPattern().eGet(feature);
 					
 			// new in-pattern elements
 			List<PatternElement> newelements = new ArrayList<PatternElement>();

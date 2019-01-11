@@ -4,6 +4,6 @@ import testing.utils.MMResource;
 
 public interface IStorageStrategy {
 
-	void save(MMResource mutatedMetamodel);
+	void save(MMResource mutatedMetamodel, String mutationName);
 
 }

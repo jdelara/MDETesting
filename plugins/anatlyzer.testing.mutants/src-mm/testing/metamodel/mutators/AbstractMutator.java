@@ -44,7 +44,7 @@ public abstract class AbstractMutator {
 	public abstract boolean isBreaking ();
 
 	protected void registerUndo(MMResource mutatedMetamodel, Runnable undo) {
-		storage.save(mutatedMetamodel);
+		storage.save(mutatedMetamodel, this.getClass().getSimpleName());
 		undo.run();
 	}
 

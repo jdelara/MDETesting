@@ -27,8 +27,8 @@ public class OutElementCreationMutator extends AbstractMutator {
 		Module module = wrapper.getModule();
 		EDataTypeEList<String> comments = null;
 		if (module!=null) {
-			EStructuralFeature feature = wrapper.source(module).eClass().getEStructuralFeature("commentsBefore");	
-			comments = (EDataTypeEList<String>)wrapper.source(module).eGet(feature);
+			EStructuralFeature feature = module.eClass().getEStructuralFeature("commentsBefore");	
+			comments = (EDataTypeEList<String>)module.eGet(feature);
 		}
 		
 		// for each matched rule
@@ -37,8 +37,8 @@ public class OutElementCreationMutator extends AbstractMutator {
 			if (rule.getOutPattern()!=null) {
 				
 				// current out-pattern elements 
-				EStructuralFeature feature = wrapper.source(rule.getOutPattern()).eClass().getEStructuralFeature("elements");
-				List<PatternElement> realelements = (List<PatternElement>)wrapper.source(rule.getOutPattern()).eGet(feature);
+				EStructuralFeature feature = rule.getOutPattern().eClass().getEStructuralFeature("elements");
+				List<PatternElement> realelements = (List<PatternElement>)rule.getOutPattern().eGet(feature);
 					
 				// new out-pattern elements
 				List<PatternElement> newelements = new ArrayList<PatternElement>();
@@ -80,7 +80,7 @@ public class OutElementCreationMutator extends AbstractMutator {
 		List<PatternElement> elements = new ArrayList<PatternElement>();
 		for (EClassifier classifier : metamodel.getEClassifiers()) {
 			if (classifier instanceof EClass) {
-				PatternElement element = ATLFactory.eINSTANCE.createSimpleInPatternElement();
+				PatternElement element = ATLFactory.eINSTANCE.createSimpleOutPatternElement();
 				OclModelElement ome = OCLFactory.eINSTANCE.createOclModelElement();
 				OclModel        mm  = OCLFactory.eINSTANCE.createOclModel();
 				ome.setName(classifier.getName());

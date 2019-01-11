@@ -26,8 +26,8 @@ public class MCO extends AbstractMutator {
 		for (Helper helper : helpers) {
 			// if the helper is a target invariant...
 			if ( needsToBeMutated(helper) != null ) {				
-				EObject original_helper = wrapper.source(helper);
-				EObject container       = wrapper.source(helper.eContainer());
+				EObject original_helper = helper;
+				EObject container       = helper.eContainer();
 				EStructuralFeature feature_container = null;
 				if (helper.eContainer() instanceof Module && ((Module)helper.eContainer()).getElements().contains(helper)) {
 					feature_container = container.eClass().getEStructuralFeature("elements");

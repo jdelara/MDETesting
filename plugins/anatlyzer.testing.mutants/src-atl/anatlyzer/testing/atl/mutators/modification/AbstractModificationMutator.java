@@ -56,24 +56,24 @@ public abstract class AbstractModificationMutator extends AbstractMutator {
 		Module module = wrapper.getModule();
 		EDataTypeEList<String> comments = null;
 		if (module!=null) {
-			EStructuralFeature f = wrapper.source(module).eClass().getEStructuralFeature("commentsBefore");	
-			comments = (EDataTypeEList<String>)wrapper.source(module).eGet(f);
+			EStructuralFeature f = module.eClass().getEStructuralFeature("commentsBefore");	
+			comments = (EDataTypeEList<String>)module.eGet(f);
 		}
 		
 		// filter subtypes (only if parameter exactToModifyType is true)
 		if (exactToModifyType) filterSubtypes(modifiable, ToModifyClass);
 		
 		for (ToModify object2modify : modifiable) {
-			EStructuralFeature featureDefinition = wrapper.source(object2modify).eClass().getEStructuralFeature(feature);
+			EStructuralFeature featureDefinition = object2modify.eClass().getEStructuralFeature(feature);
 			
 			if (featureDefinition!=null && featureDefinition.getUpperBound() == 1) {
-				EObject object2modify_src = wrapper.source(object2modify);			
+				EObject object2modify_src = object2modify;			
 				Object oldFeatureValue = object2modify_src.eGet(featureDefinition); 
 
 				List<Object> replacements = this.replacements(object2modify, oldFeatureValue.toString(), metamodel);
 				for (Object replacement : replacements) {
 					if (replacement!=null) {	
-						wrapper.source(object2modify).eSet(featureDefinition, replacement);
+						object2modify.eSet(featureDefinition, replacement);
 					
 						// mutation: documentation
 						if (comments!=null) comments.add("\n-- MUTATION \"" + this.getDescription() + "\" from " + oldFeatureValue.toString() + " to " + replacement  + " (line " + object2modify.getLocation() + " of original transformation)\n");

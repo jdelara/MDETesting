@@ -46,28 +46,28 @@ public abstract class AbstractDeletionMutator extends AbstractMutator {
 		Module module = wrapper.getModule();
 		EDataTypeEList<String> comments = null;
 		if (module!=null) {
-			EStructuralFeature feature = wrapper.source(module).eClass().getEStructuralFeature("commentsBefore");	
-			comments = (EDataTypeEList<String>)wrapper.source(module).eGet(feature);
+			EStructuralFeature feature = module.eClass().getEStructuralFeature("commentsBefore");	
+			comments = (EDataTypeEList<String>)module.eGet(feature);
 		}
 
 		// filter subtypes (only if parameter exactContainerType is true)
 		if (exactContainerType) filterSubtypes(containers, ContainerClass);
 
 		for (Container container : containers) {
-			EStructuralFeature feature = wrapper.source(container).eClass().getEStructuralFeature(relation);
+			EStructuralFeature feature = container.eClass().getEStructuralFeature(relation);
 
 			if (feature!=null) {
 
 				// CASE 1: monovalued feature .........................................................
 
 				if (feature.getUpperBound() == 1 && feature.getLowerBound() == 0) {
-					EObject link = (EObject) wrapper.source(container).eGet(feature);
+					EObject link = (EObject) container.eGet(feature);
 
 					// mutation: remove object
 					if (link!=null) {
-						LocatedElement object = (LocatedElement)wrapper.target(link);
+						LocatedElement object = (LocatedElement) link; //(LocatedElement)wrapper.target(link);
 						if (ToDeleteClass.isAssignableFrom(object.getClass())) {
-							wrapper.source(container).eSet(feature, null);
+							container.eSet(feature, null);
 
 							// mutation: documentation
 							if (comments!=null) comments.add("\n-- MUTATION \"" + this.getDescription() + "\" " + toString(object) + " in " + toString(container) + " (line " + object.getLocation() + " of original transformation)\n");
@@ -75,7 +75,7 @@ public abstract class AbstractDeletionMutator extends AbstractMutator {
 							// restore: restore object and remove comment
 							final EDataTypeEList<String> fComments = comments;
 							registerUndo(wrapper, () -> {
-								wrapper.source(container).eSet(feature, link);
+								container.eSet(feature, link);
 								if (fComments!=null) fComments.remove(fComments.size()-1);
 							});
 							
@@ -86,19 +86,19 @@ public abstract class AbstractDeletionMutator extends AbstractMutator {
 				// CASE 2: multivalued feature ........................................................
 
 				else {
-					List<EObject> link = (List<EObject>)wrapper.source(container).eGet(feature);
+					List<EObject> link = (List<EObject>)container.eGet(feature);
 					if (feature.getLowerBound() < link.size()) {
 						int size = link.size();
 						for (int i=0; i<size; i++) { 
 
 							// mutation: remove object
-							EObject        eobject = link.get(i);
-							LocatedElement object = (LocatedElement)wrapper.target(eobject);
-							if (ToDeleteClass.isAssignableFrom(object.getClass())) {
+							LocatedElement        eobject = (LocatedElement) link.get(i);
+							//LocatedElement object = (LocatedElement)wrapper.target(eobject);
+							if (ToDeleteClass.isAssignableFrom(eobject.getClass())) {
 								link.remove(i);
 
 								// mutation: documentation
-								if (comments!=null) comments.add("\n-- MUTATION \"" + this.getDescription() + "\" " + toString(object) + " in " + toString(container) + " (line " + object.getLocation() + " of original transformation)\n");
+								if (comments!=null) comments.add("\n-- MUTATION \"" + this.getDescription() + "\" " + toString(eobject) + " in " + toString(container) + " (line " + eobject.getLocation() + " of original transformation)\n");
 
 								
 								// restore: restore object and remove comment

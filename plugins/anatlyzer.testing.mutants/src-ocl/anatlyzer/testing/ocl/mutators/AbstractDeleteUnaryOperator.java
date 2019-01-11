@@ -31,9 +31,9 @@ public abstract class AbstractDeleteUnaryOperator extends AbstractMutator {
 				// ...and it appears in the body of a target invariant...
 				LocatedElement exp;
 				if ( (exp = needsToBeMutated(operator)) != null ) {
-					EObject not       = wrapper.source(operator);
-					EObject container = wrapper.source(operator.eContainer());
-					EObject content   = wrapper.source(operator.getSource());
+					EObject not       = operator;
+					EObject container = operator.eContainer();
+					EObject content   = operator.getSource();
 					EStructuralFeature feature_not       = not.eClass().getEStructuralFeature("source");
 					EStructuralFeature feature_container = null;
 					if ((operator.eContainer() instanceof Operation && ((Operation)operator.eContainer()).getBody() == operator) || 

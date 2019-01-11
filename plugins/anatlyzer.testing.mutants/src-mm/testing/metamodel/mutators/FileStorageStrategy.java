@@ -21,10 +21,10 @@ public class FileStorageStrategy implements IStorageStrategy  {
 	 * @param outputFolder
 	 */
 	@Override
-	public void save (MMResource metamodel) {
+	public void save (MMResource metamodel, String mutationName) {
 		String file = null;
 		try {
-			file              = this.getValidNameOfFile(outputFolder);
+			file              = this.getValidNameOfFile(outputFolder, mutationName);
 			URI          uri  = URI.createFileURI(new File(file).getAbsolutePath());
 			OutputStream os   = metamodel.getResourceSet().getURIConverter().createOutputStream(uri);
 			metamodel.save(os, null);
@@ -40,11 +40,11 @@ public class FileStorageStrategy implements IStorageStrategy  {
 	 * @param outputFolder folder where the mutants will be generated
 	 */
 	private /*static*/ long index = 1;
-	private String getValidNameOfFile (String outputFolder) {
+	private String getValidNameOfFile (String outputFolder, String mutationName) {
 		String outputfile = null;
 		String aux        = null;
 		for (long i=index; outputfile==null; i++) {
-			aux = File.separatorChar + this.getClass().getSimpleName() + "_mutant_" + i + ".ecore";
+			aux = File.separatorChar + this.getClass().getSimpleName() + "_mutant_" + i + "_" + mutationName +  ".ecore";
 			if (!new File(outputFolder, aux).exists()) { 
 				outputfile = outputFolder + aux;
 				index = i;

@@ -32,12 +32,12 @@ public class WCO2 extends AbstractMutator {
 			// if it appears in the body of a target invariant
 			LocatedElement exp;
 			if ( (exp = needsToBeMutated(object2modify)) != null ) {
-				EStructuralFeature featureDefinition = wrapper.source(object2modify).eClass().getEStructuralFeature("type");
+				EStructuralFeature featureDefinition = object2modify.eClass().getEStructuralFeature("type");
 
 				// CASE 1: monovalued feature .........................................................
 
 				if (featureDefinition!=null && featureDefinition.getUpperBound() == 1) {
-					EObject object2modify_src = wrapper.source(object2modify);			
+					EObject object2modify_src = object2modify;			
 					EObject oldFeatureValue   = (EObject)object2modify_src.eGet(featureDefinition); 
 
 					if (oldFeatureValue!=null) {
@@ -72,7 +72,7 @@ public class WCO2 extends AbstractMutator {
 				// CASE 2: multivalued feature ........................................................
 
 				else if (featureDefinition!=null) {
-					List<EObject> value = (List<EObject>)wrapper.source(object2modify).eGet(featureDefinition);
+					List<EObject> value = (List<EObject>)object2modify.eGet(featureDefinition);
 
 					for (int i=0; i<value.size(); i++) {
 

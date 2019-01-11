@@ -37,8 +37,8 @@ public class NavigationModificationMutator extends AbstractFeatureModificationMu
 		Module module = wrapper.getModule();
 		EDataTypeEList<String> comments = null;
 		if (module!=null) {
-			EStructuralFeature f = wrapper.source(module).eClass().getEStructuralFeature("commentsBefore");	
-			comments = (EDataTypeEList<String>)wrapper.source(module).eGet(f);
+			EStructuralFeature f = module.eClass().getEStructuralFeature("commentsBefore");	
+			comments = (EDataTypeEList<String>)module.eGet(f);
 		}
 		
 		// navigate navigation expressions starting from each variable
@@ -49,7 +49,7 @@ public class NavigationModificationMutator extends AbstractFeatureModificationMu
 
 				if (navigationExpression instanceof NavigationOrAttributeCallExp) {
 
-					EStructuralFeature featureDefinition = wrapper.source(navigationExpression).eClass().getEStructuralFeature("name");
+					EStructuralFeature featureDefinition = navigationExpression.eClass().getEStructuralFeature("name");
 
 					// obtain list of replacements
 					String type       = getType(navigationExpression, variable, inputMM, outputMM); 
@@ -59,7 +59,7 @@ public class NavigationModificationMutator extends AbstractFeatureModificationMu
 					for (Object replacement : replacements) {
 						EObject fNavigationExpression = navigationExpression;
 						
-						wrapper.source(fNavigationExpression).eSet(featureDefinition, replacement);
+						fNavigationExpression.eSet(featureDefinition, replacement);
 
 						// mutation: documentation
 						if (comments!=null) comments.add("\n-- MUTATION \"" + this.getDescription() + "\" from " + toString(navigationExpression, variable) + navigation + " to " + toString(navigationExpression, variable) + replacement  + " (line " + ((LocatedElement)navigationExpression).getLocation() + " of original transformation)\n");
@@ -69,7 +69,7 @@ public class NavigationModificationMutator extends AbstractFeatureModificationMu
 						registerUndo(wrapper, () -> {
 							// remove comment
 							if (fComments!=null) fComments.remove(fComments.size()-1);
-							wrapper.source(fNavigationExpression).eSet(featureDefinition, navigation);					
+							fNavigationExpression.eSet(featureDefinition, navigation);					
 						});
 						
 					}
