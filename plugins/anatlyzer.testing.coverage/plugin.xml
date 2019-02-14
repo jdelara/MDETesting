@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated coverage -->
+      <package
+            uri="http://anatlyzer/testing/coverage"
+            class="anatlyzer.testing.coverage.CoveragePackage"
+            genModel="metamodels/coverage.genmodel"/>
+   </extension>
+   <extension
+         point="org.eclipse.ant.core.antTasks">
+      <antTask
+            class="anatlyzer.testing.atl.coverage.ant.ATLCoverageGenerationTask"
+            eclipseRuntime="true"
+            library="lib/atlCoverage.jar"
+            name="anatlyzer.testing.coverage.CoverageTransformer">
+      </antTask>
+   </extension>
+   <extension
+         point="org.eclipse.ant.core.extraClasspathEntries">
+      <extraClasspathEntry
+            eclipseRuntime="true"
+            library="lib/atlCoverage.jar">
+      </extraClasspathEntry>
+   </extension>
+
+</plugin>

@@ -1,0 +1,15 @@
+@namespace(
+	uri="http://anatlyzer/testing/coverage",
+	prefix="coverage")
+package coverage;
+
+class CoverageModel {
+	val Record[*] records;
+}
+
+class Record {
+	attr String[1] location;
+	attr String[0..1] parentLocation;
+	attr String[1] kind;
+}
+

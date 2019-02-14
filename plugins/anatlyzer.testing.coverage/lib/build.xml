@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="anatlyzer.testing.coverage/lib" default="createAntJar">
+	<target name="createAntJar">
+		<jar destfile="atlCoverage.jar" basedir="../bin"/>
+	</target>
+</project>
