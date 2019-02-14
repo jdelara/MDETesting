@@ -23,5 +23,16 @@ Require-Bundle: org.eclipse.ui,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: anatlyzer.testing.atl.mutators,
+ anatlyzer.testing.atl.mutators.creation,
+ anatlyzer.testing.atl.mutators.deletion,
+ anatlyzer.testing.atl.mutators.modification,
+ anatlyzer.testing.atl.mutators.modification.feature,
+ anatlyzer.testing.atl.mutators.modification.invocation,
+ anatlyzer.testing.atl.mutators.modification.type,
  anatlyzer.testing.mutants,
- testing.metamodel
+ anatlyzer.testing.ocl.mutators,
+ testing.metamodel,
+ testing.metamodel.mutators,
+ testing.metamodel.mutators.breaking,
+ testing.metamodel.mutators.nonbreaking,
+ testing.utils
