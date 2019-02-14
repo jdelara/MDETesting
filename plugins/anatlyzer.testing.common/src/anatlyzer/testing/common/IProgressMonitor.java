@@ -16,7 +16,10 @@ public interface IProgressMonitor {
 		private boolean cancel;
 
 		@Override
-		public void workDone(@NonNull String what) { }
+		public void beginWork(String what, int size) { }
+		
+		@Override
+		public void workDone(@NonNull String what, int size) { }
 
 		@Override
 		public void cancel() {
@@ -26,15 +29,32 @@ public interface IProgressMonitor {
 		@Override
 		public boolean isCancelled() {
 			return cancel;
-		}
-		
+		}		
 	};
 
+	public static class Empty implements IProgressMonitor {
+
+		@Override
+		public void workDone(@NonNull String what, int size) { }
+
+		@Override
+		public void cancel() {	}
+
+		@Override
+		public boolean isCancelled() { return false; }
+
+		@Override
+		public void beginWork(String what, int size) { }
+		
+	}
+
+	public void beginWork(String what, int size);
 	
-	public void workDone(@NonNull String what);
+	public void workDone(@NonNull String what, int size);
 	
 	public void cancel();
 
 	public boolean isCancelled();
+
 	
 }

@@ -61,6 +61,11 @@ public class UseModelValidatorModelGenerator implements IModelGenerator {
 	private ModelGenerationStrategy useStrategy;
 	private IStorageStrategy storageStrategy;
 	private IWitnessFinder wf;
+
+	
+	public UseModelValidatorModelGenerator(Resource r, ModelGenerationStrategy.STRATEGY modelStrategy, IStorageStrategy strategy, IWitnessFinder wf) {
+		this(new Metamodel(r), getStrategy(new Metamodel(r), modelStrategy), strategy, wf);
+	}
 	
 	public UseModelValidatorModelGenerator(Metamodel metamodel, ModelGenerationStrategy useStrategy, IStorageStrategy strategy, IWitnessFinder wf) {
 		this.metamodel = metamodel;
@@ -127,7 +132,7 @@ public class UseModelValidatorModelGenerator implements IModelGenerator {
 			// if (DEBUG && intentos>INTENTOS) break;
 
 			if ( monitor != null )
-				monitor.workDone("Processed model with result: " + result);
+				monitor.workDone("Processed model with result: " + result, 1);
 
 		}
 		

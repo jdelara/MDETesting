@@ -19,7 +19,8 @@ Require-Bundle: org.eclipse.ui,
  anatlyzer.atl.typing,
  anatlyzer.use.witness,
  anatlyzer.atl.editor,
- anatlyzer.atl.standalone.api
+ anatlyzer.atl.standalone.api,
+ anatlyzer.testing.common
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: anatlyzer.testing.atl.mutators,

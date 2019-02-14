@@ -39,12 +39,14 @@ public class DifferentialOptimisationTester<T extends ITransformation, L extends
 	public void test(@NonNull IProgressMonitor monitor) {
 		
 		// 1. Mutate the original transformation 
+		monitor.beginWork("Optimise", 1);
 		T optimised = optimiser.optimise(this.transformation);
-		monitor.workDone("Optimised");
+		monitor.workDone("Optimised", 1);
 		
 		// 2. Generate models
+		monitor.beginWork("Model generation", 1);
 		List<IGeneratedModelReference> generated = modelGenerator.generateModels(monitor);
-		monitor.workDone("Model generation");
+		monitor.workDone("Model generation", 1);
 		
 		// 3. Get all generated models 
 		for (IGeneratedModelReference model : generated) {

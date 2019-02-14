@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.m2m.atl.core.ATLCoreException;
 
@@ -16,6 +15,7 @@ import anatlyzer.atl.util.ATLUtils.ModelInfo;
 import anatlyzer.testing.atl.mutators.AbstractMutator;
 import anatlyzer.testing.atl.mutators.IMutatorRegistry;
 import anatlyzer.testing.atl.mutators.IStorageStrategy;
+import anatlyzer.testing.common.IProgressMonitor;
 import transML.exceptions.transException;
 
 /**
@@ -114,50 +114,23 @@ public class ATLMutantGenerator {
 		iMetaModel.setName (this.namespace.getNamespace(this.inputMetamodels.get (0)).getName());
 		oMetaModel.setName (this.namespace.getNamespace(this.outputMetamodels.get(0)).getName());
 		
-		// create output folder
-		this.deleteDirectory(this.folderMutants, true);
-		this.createDirectory(this.folderMutants);
-		
 		List<? extends AbstractMutator> operators = mutatorRegistry.getMutators();
 		IStorageStrategy strategy = this.strategy == null ? 
 				new IStorageStrategy.FileBasedStartegy(this.folderMutants) :
 				this.strategy;
 		
-		monitor.beginTask("Generating mutants", operators.size());
+		monitor.beginWork("Generating mutants", operators.size());
 		for (AbstractMutator operator : operators) {
-			if ( monitor.isCanceled() )
+			if ( monitor.isCancelled() )
 				break;
 				
 			operator.setStorageStrategy(strategy);
+			monitor.beginWork("Generating mutant: " + operator.getClass().getSimpleName(), 1);
 			operator.generateMutants(atlModel, iMetaModel, oMetaModel);
-			monitor.worked(1);
+			monitor.workDone("Generated", 1);
 		}
+		monitor.workDone("Generated mutants", operators.size());
 		
-	}
-
-	/**
-	 * It deletes a directory.
-	 * @param folder name of directory
-	 * @param recursive it deletes the subdirectories recursively
-	 */
-	private void deleteDirectory (String directory, boolean recursive) {
-		File folder = new File(directory);
-		if (folder.exists())
-			for (File file : folder.listFiles()) {				
-				if (file.isDirectory()) deleteDirectory(file.getPath(), recursive);
-				file.delete();
-			}
-		folder.delete();
-	}
-	
-	/**
-	 * It creates a directory.
-	 * @param folder name of directory
-	 */
-	private void createDirectory (String directory) {
-		File folder = new File(directory);
-		while (!folder.exists()) 
-			folder.mkdir();
 	}
 
 	/**
