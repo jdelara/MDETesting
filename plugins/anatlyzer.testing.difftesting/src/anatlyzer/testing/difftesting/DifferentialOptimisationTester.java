@@ -38,12 +38,6 @@ public class DifferentialOptimisationTester<T extends ITransformation, L extends
 	 */
 	public void test(@NonNull IProgressMonitor monitor) {
 		
-		List<? extends ModelSpec> tgts = this.transformation.getTargets();
-		if ( tgts.size() != 1 )
-			throw new UnsupportedOperationException("So far, only one model supported");
-		
-		String tgtModelName = tgts.get(0).getModelName();		
-		
 		// 1. Mutate the original transformation 
 		T optimised = optimiser.optimise(this.transformation);
 		monitor.workDone("Optimised");
@@ -65,17 +59,24 @@ public class DifferentialOptimisationTester<T extends ITransformation, L extends
 			} catch (TransformationExecutionError e) {
 				throw new RuntimeException("TODO: Record this properly", e);
 			}
-			
-			IModel r0 = launcher1.getOutput(tgtModelName);
-			IModel r1 = launcher2.getOutput(tgtModelName);
-			
-			// 3.2 Compare each one
-			boolean equals = comparator.compare(r0, r1);
-			System.out.println("Comparing : " + equals);
-			if ( ! equals ) {
-				System.out.println("Failed optimisation!");
-				throw new UnsupportedOperationException("Record this and continue");
+		
+
+			List<? extends ModelSpec> tgts = this.transformation.getTargets();
+			for (ModelSpec tgt : tgts) {
+				String tgtModelName = tgt.getModelName();		
+				
+				IModel r0 = launcher1.getOutput(tgtModelName);
+				IModel r1 = launcher2.getOutput(tgtModelName);
+				
+				// 3.2 Compare each one
+				boolean equals = comparator.compare(r0, r1);
+				System.out.println("Comparing : " + equals);
+				if ( ! equals ) {
+					System.out.println("Failed optimisation!");
+					throw new UnsupportedOperationException("Record this and continue");
+				}
 			}
+			
 			// addToReport
 		}
 	}
