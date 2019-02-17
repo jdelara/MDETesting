@@ -80,7 +80,5 @@ public class AtlTransformation implements ITransformation {
 		trafo.targets = new ArrayList<ITransformation.ModelSpec>(targets);
 		return trafo;
 	}
-	
-	
 
 }

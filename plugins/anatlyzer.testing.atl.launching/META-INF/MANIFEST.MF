@@ -8,7 +8,12 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.m2m.atl.core,
  org.eclipse.m2m.atl.core.emf,
  org.eclipse.m2m.atl.engine,
- org.eclipse.m2m.atl.engine.emfvm.launch
+ org.eclipse.m2m.atl.engine.emfvm.launch,
+ anatlyzer.atl.standalone.api,
+ anatlyzer.atl.typing,
+ anatlyzer.testing.common;bundle-version="1.0.0",
+ org.eclipse.jdt.annotation;bundle-version="2.1.100"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Export-Package: anatlyzer.testing.atl.launching
+Export-Package: anatlyzer.testing.atl.common,
+ anatlyzer.testing.atl.launching

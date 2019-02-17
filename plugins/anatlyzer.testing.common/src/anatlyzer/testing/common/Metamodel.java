@@ -1,5 +1,6 @@
 package anatlyzer.testing.common;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -8,13 +9,14 @@ import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EPackage.Registry;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Wraps a set of EPackage's into a meta-model.
  * @author jesus
  *
  */
-public class Metamodel implements IModel {
+public class Metamodel extends IModel.AbstractModel implements IModel {
 
 	private List<EPackage> packages;
 	private List<EClassifier> classifiers;
@@ -25,6 +27,11 @@ public class Metamodel implements IModel {
 		packages = extractEPackages(r);
 	}
 
+	@Override
+	public @Nullable Metamodel getMetamodel() {
+		return null;
+	}
+	
 	public Collection<? extends EPackage> getPackages() {
 		return packages;
 	}
@@ -59,6 +66,11 @@ public class Metamodel implements IModel {
 		for (EPackage pkg : getPackages()) {
 			packageRegistry.put(pkg.getNsURI(), pkg);
 		}
+	}
+
+	@Override
+	public void save() throws IOException {
+		resource.save(null);
 	}
 	
 }

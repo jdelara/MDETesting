@@ -72,6 +72,9 @@ public class ATLExecutor {
 			return loadedModel;
 		}
 
+		public String getModelPath() {
+			throw new UnsupportedOperationException();
+		}
 		
 		public abstract void save() throws ATLCoreException;
 		
@@ -97,6 +100,11 @@ public class ATLExecutor {
 			this.newModelPath = modelPath;
 		}
 
+		@Override
+		public String getModelPath() {
+			return newModelPath;
+		}
+		
 		public void load() {
 			try {
 				ModelFactory factory = new EMFModelFactory();
@@ -146,6 +154,11 @@ public class ATLExecutor {
 			this.inputResource = resource;
 		}
 
+		@Override
+		public String getModelPath() {
+			return newModelPath;
+		}
+		
 		public void load() {
 			try {
 				ModelFactory factory = new EMFModelFactory();
@@ -153,6 +166,7 @@ public class ATLExecutor {
 			 	loadedMetamodel = factory.newReferenceModel();
 				injector.inject(loadedMetamodel, metamodelPath);
 				this.loadedModel = factory.newModel(loadedMetamodel);
+				
 				if ( kind != ModelKind.OUT) {
 					if ( inputResource != null ) {
 						injector.inject(loadedModel, inputResource);
@@ -310,6 +324,11 @@ public class ATLExecutor {
 		if ( launcher == null )
 			throw new IllegalStateException();
 		return (EMFModel) launcher.getModel(name);
+	}
+	
+	public ModelData getModelData(String name) {
+		return modelData.stream().filter(m -> m.getModelName().equals(name)).
+				findFirst().orElseThrow(() -> new IllegalArgumentException());
 	}
 	
 	public ATLExecutor tempAsmPath(String path) {

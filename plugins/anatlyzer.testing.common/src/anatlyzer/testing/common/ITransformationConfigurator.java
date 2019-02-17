@@ -8,6 +8,6 @@ package anatlyzer.testing.common;
  */
 public interface ITransformationConfigurator<T extends ITransformation, L extends ITransformationLauncher> {
 
-	L configure(T t, IModel input);
+	L configure(T t, IModel... inputs);
 	
 }

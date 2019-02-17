@@ -1,6 +1,11 @@
 package anatlyzer.testing.common;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class FileUtils {
 
@@ -28,5 +33,19 @@ public class FileUtils {
 		new File(directory).mkdirs();
 	}
 
+	public static <T> List<T> getFiles(File folder, String extension, Function<File, T> mapper) throws IOException {
+		return Files.list(folder.toPath())
+				.filter(p -> p.toString().endsWith(extension))
+				.map(p -> mapper.apply(p.toFile()))
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Creates the required folders to store the given file.
+	 * @param f0
+	 */
+	public static void mkFolderForFile(File f) {
+		createDirectory(f.getParentFile().getAbsolutePath());
+	}
 
 }

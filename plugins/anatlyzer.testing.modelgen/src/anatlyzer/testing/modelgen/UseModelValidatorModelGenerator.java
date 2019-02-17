@@ -61,7 +61,12 @@ public class UseModelValidatorModelGenerator implements IModelGenerator {
 	private ModelGenerationStrategy useStrategy;
 	private IStorageStrategy storageStrategy;
 	private IWitnessFinder wf;
-
+	private int limit = -1;
+	
+	
+	public UseModelValidatorModelGenerator(Metamodel m, ModelGenerationStrategy.STRATEGY modelStrategy, IStorageStrategy strategy, IWitnessFinder wf) {
+		this(m, getStrategy(m, modelStrategy), strategy, wf);
+	}
 	
 	public UseModelValidatorModelGenerator(Resource r, ModelGenerationStrategy.STRATEGY modelStrategy, IStorageStrategy strategy, IWitnessFinder wf) {
 		this(new Metamodel(r), getStrategy(new Metamodel(r), modelStrategy), strategy, wf);
@@ -74,18 +79,17 @@ public class UseModelValidatorModelGenerator implements IModelGenerator {
 		this.wf = wf;
 	}
 	
+	public UseModelValidatorModelGenerator withLimit(int limit) {
+		if ( limit <= 0 )
+			limit = -1;
+		this.limit = limit;
+		return this;
+	}
+	
 	@Override
 	public List<IGeneratedModelReference> generateModels(IProgressMonitor monitor) {
 		List<IGeneratedModelReference> generated = new ArrayList<IGeneratedModelReference>(); 
-		// initialize parameters for model generation
-		// this.createDirectory(this.folderSolver);
 		
-		// move generated models to output folder
-//		String folder = foldermodels4transformation(outputFolder, transformation);
-//		this.createDirectory(folder);
-		
-		// generate models that satisfy the advanced postconditions
-		long intentos = 0;		
 		// TODO: This is weird, because useStrategy is an iterator itself, so it is one-shot
 		for (Properties propertiesUse : useStrategy) {
 			if ( monitor != null && monitor.isCancelled() )
@@ -128,12 +132,12 @@ public class UseModelValidatorModelGenerator implements IModelGenerator {
 				System.out.println("Cannot generate model: " + result );
 			}
 
-			intentos++;
-			// if (DEBUG && intentos>INTENTOS) break;
-
 			if ( monitor != null )
 				monitor.workDone("Processed model with result: " + result, 1);
 
+			if ( limit != -1 && generated.size() > limit ) {
+				break;
+			}
 		}
 		
 		return generated;		

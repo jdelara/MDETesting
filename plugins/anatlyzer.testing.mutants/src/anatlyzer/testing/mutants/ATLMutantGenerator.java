@@ -34,6 +34,7 @@ public class ATLMutantGenerator {
 	private String folderMutants;
 	private IStorageStrategy strategy;
 	private IMutatorRegistry mutatorRegistry = new IMutatorRegistry.AllMutators();
+	private int limit = -1;
 	
 	public ATLMutantGenerator(AnalysisLoader loader, String folderMutants) throws ATLCoreException {
 		this(loader.getAtlTransformation(), loader.getNamespace(), folderMutants);
@@ -65,6 +66,14 @@ public class ATLMutantGenerator {
 	
 	public ATLMutantGenerator withMutationRegistry(IMutatorRegistry registry) {
 		this.mutatorRegistry  = registry;
+		return this;
+	}
+	
+
+	public ATLMutantGenerator withLimit(int limit) {
+		if ( limit <= 0 )
+			limit = -1;
+		this.limit = limit;
 		return this;
 	}
 	

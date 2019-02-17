@@ -9,11 +9,10 @@ Bundle-Localization: plugin
 Bundle-Activator: anatlyzer.testing.common.Activator
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
- anatlyzer.atl.standalone.api,
- anatlyzer.atl.typing,
  org.eclipse.jdt.annotation,
- anatlyzer.testing.launching
+ org.apache.commons.logging;bundle-version="1.1.1";visibility:=reexport,
+ com.google.guava;bundle-version="21.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Export-Package: anatlyzer.testing.atl.common,
- anatlyzer.testing.common
+Export-Package: anatlyzer.testing.common,
+ anatlyzer.testing.common.report
