@@ -24,7 +24,7 @@ public class EMFCompareComparator implements IComparator {
 	@Override
 	public boolean compare(IModel r0, IModel r1) {		
 		// Configure EMF Compare
-		IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.ONLY);
+		IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.WHEN_AVAILABLE);
 		IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
 		IMatchEngine.Factory matchEngineFactory = new MatchEngineFactoryImpl(matcher, comparisonFactory);
 	        matchEngineFactory.setRanking(20);

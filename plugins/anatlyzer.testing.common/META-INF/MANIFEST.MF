@@ -3,7 +3,12 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: anatlyzer.testing.common;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/simple-xml-2.7.1/simple-xml-2.7.1.jar,
+ lib/simple-xml-2.7.1/stax-1.2.0.jar,
+ lib/simple-xml-2.7.1/stax-api-1.0.1.jar,
+ lib/simple-xml-2.7.1/xpp3-1.1.3_8.jar,
+ lib/commons-io-2.4.jar
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Activator: anatlyzer.testing.common.Activator
@@ -15,4 +20,6 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: anatlyzer.testing.common,
- anatlyzer.testing.common.report
+ anatlyzer.testing.common.export,
+ anatlyzer.testing.common.report,
+ org.simpleframework.xml

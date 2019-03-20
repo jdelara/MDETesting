@@ -32,6 +32,8 @@ public class DifferentialTester<
 	private final @NonNull ITransformationConfigurator<T2, L2> configurator2;
 	private final @NonNull IComparator comparator;
 	private boolean saveModels;
+	private @NonNull DifferentialTestingReport report;
+	private boolean stopOnFailure = true;
 	
 	public DifferentialTester(@NonNull T1 trafo1, @NonNull T2 trafo2,
 			@NonNull ITransformationConfigurator<T1, L1> configurator1,
@@ -51,10 +53,16 @@ public class DifferentialTester<
 		return this;
 	}
 	
+	public DifferentialTester<T1, T2, L1, L2> withStopOnFailure(boolean value) {
+		this.stopOnFailure  = value;
+		return this;
+	}
+	
 	/**
 	 * Executes the tester
+	 * @return 
 	 */
-	public void test(@NonNull IProgressMonitor monitor) {
+	public DifferentialTestingReport test(@NonNull IProgressMonitor monitor) {
 		DifferentialTestingReport report = new DifferentialTestingReport();
 		
 		// 2. Generate models
@@ -63,6 +71,7 @@ public class DifferentialTester<
 		monitor.workDone("Model generation", 1);
 		
 		// 3. Get all generated models 
+		TEST_GENERATED_MODEL:
 		for (IGeneratedModelReference model : generated) {
 			//
 			// 3.1 Execute the original and the other
@@ -70,13 +79,21 @@ public class DifferentialTester<
 			ITransformationLauncher launcher2 = configurator2.configure(this.transformation2, model);
 			
 			try {
+				// TODO: Record execution time
 				launcher1.exec();
 				launcher2.exec();
 			} catch (TransformationExecutionError e) {
-				throw new RuntimeException("TODO: Record this properly", e);
+				report.addError(this.transformation1, this.transformation2, model, e);
+				if ( stopOnFailure )
+					break;
+				continue TEST_GENERATED_MODEL;
+			} catch ( Exception e ) {
+				e.printStackTrace();
+				throw new IllegalStateException("Any transformation error should be wrapped into a TransformationExecutionError");
 			}
 		
 			List<? extends ModelSpec> tgts = this.transformation2.getTargets();
+			COMPARE_TARGETS:
 			for (ModelSpec tgt : tgts) {
 				String tgtModelName = tgt.getModelName();		
 				
@@ -92,25 +109,29 @@ public class DifferentialTester<
 						
 						r0.save();
 						r1.save();
-					} catch (IOException e) {
+					} catch (Exception e) {
 						// Report and continue?
 						// Throw a proper test exception?
-						throw new RuntimeException(e);
+						report.addError(transformation1, transformation2, model, e);
+						continue TEST_GENERATED_MODEL;
 					}
 				}
 				
 				// 3.2 Compare each one
 				boolean equals = comparator.compare(r0, r1);
 				System.out.println("Comparing : " + equals);
-				if ( ! equals ) {
-					
-					System.out.println("Failed optimisation!");
-					throw new UnsupportedOperationException("Record this and continue");
+				if ( ! equals ) {					
+					System.out.println("Failed comparison!");
+					report.addComparisonMismatch(transformation1, transformation2, model, r0, r1);
+					// TODO: Check if want to compare more
+					break TEST_GENERATED_MODEL;
 				}
 			}
 			
-			// addToReport
+			report.addTestOk(transformation1, transformation2, model);
 		}
+		
+		return report;
 	}
 	
 }

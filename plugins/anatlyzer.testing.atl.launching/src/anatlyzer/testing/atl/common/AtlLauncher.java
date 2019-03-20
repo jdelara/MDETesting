@@ -30,9 +30,9 @@ public class AtlLauncher implements ITransformationLauncher {
 	public void exec() throws TransformationExecutionError {
 		try {
 			executor.perform(transformation.getFileName());
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			throw new TransformationExecutionError(e);
-		}
+		} 
 	}
 
 	@Override

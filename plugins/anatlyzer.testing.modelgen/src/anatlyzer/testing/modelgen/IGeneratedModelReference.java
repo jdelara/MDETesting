@@ -49,5 +49,10 @@ public interface IGeneratedModelReference extends IModel {
 			LOG.warn("Calling save on a model reference: " + fileName);
 		}
 		
+		@Override
+		public String toString() {
+			return fileName;
+		}
+		
 	}
 }

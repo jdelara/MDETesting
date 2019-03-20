@@ -81,4 +81,9 @@ public class AtlTransformation implements ITransformation {
 		return trafo;
 	}
 
+	@Override
+	public String toString() {
+		return fileName;
+	}
+	
 }
