@@ -1,5 +1,6 @@
 package anatlyzer.testing.difftesting;
 
+import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,8 @@ import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
 
 import anatlyzer.testing.common.IModel;
 import anatlyzer.testing.common.ITransformation;
@@ -173,6 +176,11 @@ public class DifferentialTestingReport extends AbstractReport {
 			model.addRecord(record.toExportable());
 		}
 		return model;
+	}
+	
+	public static ReportModel read(File f) throws Exception {
+		Serializer serializer = new Persister();
+		return serializer.read(ReportModel.class, f);
 	}
 	
 }

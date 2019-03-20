@@ -7,9 +7,14 @@ import org.simpleframework.xml.core.Persister;
 
 public abstract class AbstractReportModel {
 
+	
+	
 	public void toXML(String fname) {
+		toXML(new File(fname));
+	}
+	
+	public void toXML(File result) {
 		Serializer serializer = new Persister();
-        File result = new File(fname);
         try {
 			serializer.write(this, result);
 		} catch (Exception e) {

@@ -28,10 +28,10 @@ public class ReportModel extends AbstractReportModel {
 	
 	public static class ReportRecord {
 		@Element(name="transformation1")
-		public String transformation1;
+		private String transformation1;
 		
 		@Element(name="transformation2")
-		public String transformation2;
+		private String transformation2;
 		
 		@Element(name="input")
 		private String input;
@@ -81,6 +81,30 @@ public class ReportModel extends AbstractReportModel {
 		public @NonNull ReportRecord withMismatch(@NonNull String explanation) {
 			this.mismatch = explanation;
 			return withStatus("mismatch");
+		}
+		
+		public String getTransformation1() {
+			return transformation1;
+		}
+		
+		public String getTransformation2() {
+			return transformation2;
+		}
+		
+		public String getException() {
+			return exception;
+		}
+		
+		public String getInput() {
+			return input;
+		}
+		
+		public String getStatus() {
+			return status;
+		}
+		
+		public String getMismatch() {
+			return mismatch;
 		}
 	}
 }

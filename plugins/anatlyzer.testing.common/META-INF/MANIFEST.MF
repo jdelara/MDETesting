@@ -22,4 +22,5 @@ Bundle-ActivationPolicy: lazy
 Export-Package: anatlyzer.testing.common,
  anatlyzer.testing.common.export,
  anatlyzer.testing.common.report,
- org.simpleframework.xml
+ org.simpleframework.xml,
+ org.simpleframework.xml.core
