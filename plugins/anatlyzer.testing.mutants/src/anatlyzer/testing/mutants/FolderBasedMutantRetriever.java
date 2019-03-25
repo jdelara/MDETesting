@@ -3,6 +3,7 @@ package anatlyzer.testing.mutants;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Predicate;
 
 import anatlyzer.testing.common.FileUtils;
 import anatlyzer.testing.common.IProgressMonitor;
@@ -12,6 +13,7 @@ public abstract class FolderBasedMutantRetriever<T extends IMutantReference> imp
 
 	private File folder;
 	private String extension;
+	private Predicate<File> fileFilter = (f) -> true;
 
 	public FolderBasedMutantRetriever(File file, String extension) {
 		this.folder = file;
@@ -25,12 +27,17 @@ public abstract class FolderBasedMutantRetriever<T extends IMutantReference> imp
 	@Override
 	public List<T> generateMutants(IProgressMonitor monitor) throws MutantGeneratorException {
 		try {
-			return FileUtils.getFiles(folder, extension, (file) -> getMutantFromFile(file));
+			return FileUtils.getFiles(folder, extension, fileFilter, (file) -> getMutantFromFile(file));
 		} catch (IOException e) {
 			throw new MutantGeneratorException(e);
 		}
 	}
 
+
+	public void withFileFilter(Predicate<File> predicate) {
+		this.fileFilter = predicate;
+	}
+	
 	protected abstract T getMutantFromFile(File file);
 	
 }

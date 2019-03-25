@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class FileUtils {
@@ -33,10 +34,12 @@ public class FileUtils {
 		new File(directory).mkdirs();
 	}
 
-	public static <T> List<T> getFiles(File folder, String extension, Function<File, T> mapper) throws IOException {
+	public static <T> List<T> getFiles(File folder, String extension, Predicate<File> pred, Function<File, T> mapper) throws IOException {
 		return Files.list(folder.toPath())
 				.filter(p -> p.toString().endsWith(extension))
-				.map(p -> mapper.apply(p.toFile()))
+				.map(p -> p.toFile())
+				.filter(pred)
+				.map(p -> mapper.apply(p))
 				.collect(Collectors.toList());
 	}
 

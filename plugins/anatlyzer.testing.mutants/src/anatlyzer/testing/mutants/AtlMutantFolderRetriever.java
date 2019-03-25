@@ -17,4 +17,5 @@ public class AtlMutantFolderRetriever extends FolderBasedMutantRetriever<AtlMuta
 		return new AtlMutantReference(file);
 	}
 
+
 }
