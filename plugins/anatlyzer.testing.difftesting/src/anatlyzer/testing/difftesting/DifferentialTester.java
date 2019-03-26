@@ -32,8 +32,8 @@ public class DifferentialTester<
 	private final @NonNull ITransformationConfigurator<T2, L2> configurator2;
 	private final @NonNull IComparator comparator;
 	private boolean saveModels;
-	private @NonNull DifferentialTestingReport report;
-	private boolean stopOnFailure = true;
+	private @NonNull DifferentialTestingReport report;	
+	private OnErrorStrategy retryStrategy = NO_RETRY_STRATEGY;
 	
 	public DifferentialTester(@NonNull T1 trafo1, @NonNull T2 trafo2,
 			@NonNull ITransformationConfigurator<T1, L1> configurator1,
@@ -50,11 +50,6 @@ public class DifferentialTester<
 	
 	public DifferentialTester<T1, T2, L1, L2> withSaveModels(boolean save) {
 		this.saveModels = save;
-		return this;
-	}
-	
-	public DifferentialTester<T1, T2, L1, L2> withStopOnFailure(boolean value) {
-		this.stopOnFailure  = value;
 		return this;
 	}
 	
@@ -84,7 +79,7 @@ public class DifferentialTester<
 				launcher2.exec();
 			} catch (TransformationExecutionError e) {
 				report.addError(this.transformation1, this.transformation2, model, e);
-				if ( stopOnFailure )
+				if ( ! retryStrategy.continueOnException(e) )
 					break;
 				continue TEST_GENERATED_MODEL;
 			} catch ( Exception e ) {
@@ -123,8 +118,10 @@ public class DifferentialTester<
 				if ( ! equals ) {					
 					System.out.println("Failed comparison!");
 					report.addComparisonMismatch(transformation1, transformation2, model, r0, r1);
-					// TODO: Check if want to compare more
-					break TEST_GENERATED_MODEL;
+					
+					if ( ! retryStrategy.continueOnComparisonMismatch("<uknown-cause>") )
+						break TEST_GENERATED_MODEL;
+					continue TEST_GENERATED_MODEL;
 				}
 			}
 			
@@ -134,4 +131,36 @@ public class DifferentialTester<
 		return report;
 	}
 	
+	public DifferentialTester<T1, T2, L1, L2> setOnErrorStrategy(OnErrorStrategy retryStrategy) {
+		this.retryStrategy = retryStrategy;
+		return this;
+	}
+	
+	public static interface OnErrorStrategy {
+		public boolean continueOnException(Exception e);
+		public boolean continueOnComparisonMismatch(String cause);
+	}
+
+	public static class OnErrorStrategyImpl implements OnErrorStrategy {
+		private boolean onException;
+		private boolean onMismatch;
+
+		public OnErrorStrategyImpl(boolean onException, boolean onMismatch) {
+			this.onException = onException;
+			this.onMismatch = onMismatch;
+		}
+		
+		@Override
+		public boolean continueOnException(Exception e) {
+			return onException;
+		}
+		
+		@Override
+		public boolean continueOnComparisonMismatch(String cause) {
+			return onMismatch;
+		}
+	}
+	
+	public static final OnErrorStrategy NO_RETRY_STRATEGY = new OnErrorStrategyImpl(false, false);
+	public static final OnErrorStrategy ALWAYS_RETRY_STRATEGY = new OnErrorStrategyImpl(true, true);	
 }
