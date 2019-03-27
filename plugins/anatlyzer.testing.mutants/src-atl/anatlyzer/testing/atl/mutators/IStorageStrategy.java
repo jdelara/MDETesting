@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import anatlyzer.atl.model.ATLModel;
 import anatlyzer.atl.util.ATLSerializer;
@@ -61,6 +63,20 @@ public interface IStorageStrategy {
 				throw new RuntimeException(e);
 			}
 		}
+		
+
+		// /home/jesus/mutation-cache/class2table/mutants/HelperReturnModificationMutator_541.atl
+		public static String getMutantName(String path) {
+			String name = new File(path).getName();
+			Pattern pattern = Pattern.compile("([A-Za-z])+_[0-9]+\\.atl");
+			
+			Matcher m = pattern.matcher(name);
+			if ( m.find() ) {
+				return m.group(1);
+			}
+			throw new IllegalStateException("Can't recognize " + path);
+		}
+		
 	}
 	
 	
