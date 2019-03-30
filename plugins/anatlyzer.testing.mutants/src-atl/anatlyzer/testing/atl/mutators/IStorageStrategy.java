@@ -68,7 +68,7 @@ public interface IStorageStrategy {
 		// /home/jesus/mutation-cache/class2table/mutants/HelperReturnModificationMutator_541.atl
 		public static String getMutantName(String path) {
 			String name = new File(path).getName();
-			Pattern pattern = Pattern.compile("([A-Za-z])+_[0-9]+\\.atl");
+			Pattern pattern = Pattern.compile("([A-Za-z]+)_[0-9]+\\.atl");
 			
 			Matcher m = pattern.matcher(name);
 			if ( m.find() ) {
