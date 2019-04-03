@@ -28,7 +28,7 @@ import anatlyzer.testing.common.Metamodel;
  * @author jesus
  *
  */
-public class UseModelValidatorModelGenerator implements IModelGenerator {
+public class UseModelValidatorModelGenerator extends AbstractModelGenerator implements IModelGenerator {
 
 	public static ModelGenerationStrategy getStrategy(Metamodel metamodel, ModelGenerationStrategy.STRATEGY strategy) {
 		List<String>     classes    = new ArrayList<String>();
@@ -59,11 +59,7 @@ public class UseModelValidatorModelGenerator implements IModelGenerator {
 
 	private Metamodel metamodel;
 	private ModelGenerationStrategy useStrategy;
-	private IStorageStrategy storageStrategy;
-	private IWitnessFinder wf;
-	private int limit = -1;
-	
-	
+
 	public UseModelValidatorModelGenerator(Metamodel m, ModelGenerationStrategy.STRATEGY modelStrategy, IStorageStrategy strategy, IWitnessFinder wf) {
 		this(m, getStrategy(m, modelStrategy), strategy, wf);
 	}
@@ -73,17 +69,9 @@ public class UseModelValidatorModelGenerator implements IModelGenerator {
 	}
 	
 	public UseModelValidatorModelGenerator(Metamodel metamodel, ModelGenerationStrategy useStrategy, IStorageStrategy strategy, IWitnessFinder wf) {
+		super(strategy, wf);
 		this.metamodel = metamodel;
 		this.useStrategy = useStrategy;
-		this.storageStrategy = strategy;
-		this.wf = wf;
-	}
-	
-	public UseModelValidatorModelGenerator withLimit(int limit) {
-		if ( limit <= 0 )
-			limit = -1;
-		this.limit = limit;
-		return this;
 	}
 	
 	@Override
@@ -95,8 +83,6 @@ public class UseModelValidatorModelGenerator implements IModelGenerator {
 			if ( monitor != null && monitor.isCancelled() )
 				break;
 			
-			//...that satisfy the advanced postconditions
-			// IWitnessFinder wf = WitnessUtil.getFirstWitnessFinder(new TransformationConfiguration());
 			wf.setWitnessGenerationModel(WitnessGenerationMode.FULL_METAMODEL);			
 			wf.setScopeCalculator(new GenStrategyScope(propertiesUse));
 			

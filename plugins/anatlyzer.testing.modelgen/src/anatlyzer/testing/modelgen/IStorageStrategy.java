@@ -13,5 +13,4 @@ public interface IStorageStrategy {
 			super(t);
 		}
 	}
-	
 }

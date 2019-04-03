@@ -9,7 +9,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore,
  anatlyzer.atl.typing;bundle-version="0.7.1",
  anatlyzer.use.witness;bundle-version="0.7.1";visibility:=reexport,
- org.eclipse.emf.ecore.xmi
+ org.eclipse.emf.ecore.xmi,
+ org.eclipse.jdt.annotation
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Export-Package: anatlyzer.testing.modelgen
+Export-Package: anatlyzer.testing.modelgen,
+ anatlyzer.testing.modelgen.atl

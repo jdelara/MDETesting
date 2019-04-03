@@ -1,0 +1,22 @@
+@namespace(
+	uri="http://anatlyzer/testing/validation_result",
+	prefix="validation")
+package validation;
+
+class ValidationModel {
+	val InputModel[*] models;
+	val ValidationRule[*] validations;
+}
+
+class InputModel {
+	attr String[1] name;
+	attr String[1] path;
+}
+
+class ValidationRule {
+	attr String[0..1] name;
+	attr String[0..1] description;
+	ref EObject[*] objects;
+	attr Boolean[1] result;
+}
+

@@ -23,4 +23,7 @@ Export-Package: anatlyzer.testing.common,
  anatlyzer.testing.common.export,
  anatlyzer.testing.common.report,
  org.simpleframework.xml,
- org.simpleframework.xml.core
+ org.simpleframework.xml.core,
+ anatlyzer.testing.common.validation,
+ anatlyzer.testing.common.validation.impl,
+ anatlyzer.testing.common.validation.util

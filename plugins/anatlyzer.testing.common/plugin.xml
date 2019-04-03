@@ -5,4 +5,12 @@
 -->
 
 <plugin>
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated validation_result -->
+      <package
+            uri="http://anatlyzer/testing/validation_result"
+            class="anatlyzer.testing.common.validation.ValidationResultPackage"
+            genModel="metamodels/validation_result.genmodel"/>
+   </extension>
+
 </plugin>
