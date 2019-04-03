@@ -30,7 +30,7 @@ public class RSCC extends NavigationModificationMutator {
 			(mmfeature = mmsource.getEStructuralFeature(feature))!=null &&
 			mmfeature instanceof EReference) 		
 			for (EReference option : mmsource.getEAllReferences())
-				if (option!=mmfeature && option.getEType() == mmfeature.getEType())
+				if (option!=mmfeature && option.getEType()==mmfeature.getEType())
 					replacements.add(option.getName());
 		return replacements;	
 	}
