@@ -61,12 +61,7 @@ public class BindingCreationMutator extends AbstractMutator {
 						List<Binding> realbindings = (List<Binding>)outElement.eGet(feature);
 					
 						// new bindings
-						List<Binding> newbindings = new ArrayList<Binding>();
-						newbindings.add(this.getBinding1((EClass)classifier, outElement.getBindings(), ivariables)); // duplicate binding
-						newbindings.add(this.getBinding2((EClass)classifier, outElement.getBindings(), ivariables)); // non-duplicate binding with primitive type and correct value
-						newbindings.add(this.getBinding3((EClass)classifier, outElement.getBindings(), ivariables)); // non-duplicate binding with non-primitive type and correct value
-						newbindings.add(this.getBinding4((EClass)classifier, outElement.getBindings(), ivariables)); // non-duplicate binding and assign an incorrect value
-						newbindings.add(this.getBinding5((EClass)classifier, outputMM,                 ivariables)); // binding for property of subclass (correct value)
+						List<Binding> newbindings = newbindings(wrapper, outElement, (EClass)classifier, outputMM, ivariables);
 					
 						// for each new binding 
 						for (Binding binding : newbindings) {
@@ -92,7 +87,7 @@ public class BindingCreationMutator extends AbstractMutator {
 		}
 	}
 	
-	public List<? extends VariableDeclaration> getVariableDeclarations (Rule rule) {
+	protected List<? extends VariableDeclaration> getVariableDeclarations (Rule rule) {
 		if (rule instanceof MatchedRule && ((MatchedRule)rule).getInPattern()!=null) 
 			return ((MatchedRule)rule).getInPattern().getElements();
 		if (rule.getVariables() != null) 
@@ -106,12 +101,31 @@ public class BindingCreationMutator extends AbstractMutator {
 	}
 	
 	/**
+	 * It returns the list of new bindings to create.
+	 * @param wrapper ATL transformation
+	 * @param outputElement element created by the rule
+	 * @param outputElementType type of the element create of the rule (outputElement.class) 
+	 * @param outputMM output meta-model output meta-model
+	 * @param ivariables variable declarations in the input pattern of the rule
+	 * @return
+	 */
+	protected List<Binding> newbindings(ATLModel wrapper, OutPatternElement outputElement, EClass outputElementType, MuMetaModel outputMM, List<? extends VariableDeclaration> ivariables) {
+		List<Binding> newbindings = new ArrayList<Binding>();
+		newbindings.add(this.getBinding1(outputElementType, outputElement.getBindings(), ivariables)); // duplicate binding
+		newbindings.add(this.getBinding2(outputElementType, outputElement.getBindings(), ivariables)); // non-duplicate binding with primitive type and correct value
+		newbindings.add(this.getBinding3(outputElementType, outputElement.getBindings(), ivariables)); // non-duplicate binding with non-primitive type and correct value
+		newbindings.add(this.getBinding4(outputElementType, outputElement.getBindings(), ivariables)); // non-duplicate binding and assign an incorrect value
+		newbindings.add(this.getBinding5(outputElementType, outputMM,                    ivariables)); // binding for property of subclass (correct value)
+		return newbindings;
+	}
+	
+	/**
 	 * It returns a duplicate binding.
 	 * @param clazz out class for binding
 	 * @param bindings list of bindings defined for the our class
 	 * @param ivariables input variable declarations 
 	 */
-	private Binding getBinding1 (EClass clazz, List<Binding> bindings, List<? extends VariableDeclaration> ivariables) {
+	protected Binding getBinding1 (EClass clazz, List<Binding> bindings, List<? extends VariableDeclaration> ivariables) {
 		if (bindings!=null && bindings.size()>0) {
 			Binding duplicate   = bindings.get( new Random().nextInt(bindings.size()) );
 			String propertyName = duplicate.getPropertyName();
@@ -129,7 +143,7 @@ public class BindingCreationMutator extends AbstractMutator {
 	 * @param bindings list of bindings defined for the our class
 	 * @param ivariables input variable declarations 
 	 */
-	private Binding getBinding2 (EClass clazz, List<Binding> bindings, List<? extends VariableDeclaration> ivariables) {
+	protected Binding getBinding2 (EClass clazz, List<Binding> bindings, List<? extends VariableDeclaration> ivariables) {
 		for (EStructuralFeature feature : clazz.getEAllStructuralFeatures()) {
 			if ( hasPrimitiveType(feature) && !bindings.stream().anyMatch( b -> b.getPropertyName().equals(feature.getName())) ) {
 				String propertyName = feature.getName();
@@ -148,7 +162,7 @@ public class BindingCreationMutator extends AbstractMutator {
 	 * @param bindings list of bindings defined for the our class
 	 * @param ivariables input variable declarations 
 	 */
-	private Binding getBinding3 (EClass clazz, List<Binding> bindings, List<? extends VariableDeclaration> ivariables) {
+	protected Binding getBinding3 (EClass clazz, List<Binding> bindings, List<? extends VariableDeclaration> ivariables) {
 		for (EStructuralFeature feature : clazz.getEAllStructuralFeatures()) {
 			if ( !hasPrimitiveType(feature) && !bindings.stream().anyMatch( b -> b.getPropertyName().equals(feature.getName())) ) {
 				String propertyName = feature.getName();
@@ -167,7 +181,7 @@ public class BindingCreationMutator extends AbstractMutator {
 	 * @param bindings list of bindings defined for the our class
 	 * @param ivariables input variable declarations 
 	 */
-	private Binding getBinding4 (EClass clazz, List<Binding> bindings, List<? extends VariableDeclaration> ivariables) {
+	protected Binding getBinding4 (EClass clazz, List<Binding> bindings, List<? extends VariableDeclaration> ivariables) {
 		for (EStructuralFeature feature : clazz.getEAllStructuralFeatures()) {
 			if ( !bindings.stream().anyMatch( b -> b.getPropertyName().equals(feature.getName())) ) {
 				String propertyName = feature.getName();
@@ -186,7 +200,7 @@ public class BindingCreationMutator extends AbstractMutator {
 	 * @param metamodel output metamodel
 	 * @param ivariables input variable declarations 
 	 */
-	private Binding getBinding5 (EClass clazz, MuMetaModel metamodel, List<? extends VariableDeclaration> ivariables) {
+	protected Binding getBinding5 (EClass clazz, MuMetaModel metamodel, List<? extends VariableDeclaration> ivariables) {
 		for (EClassifier classifier : metamodel.getEClassifiers()) {
 			if (classifier instanceof EClass) {
 				EClass child = ((EClass)classifier);
@@ -208,7 +222,7 @@ public class BindingCreationMutator extends AbstractMutator {
 	 * @param feature
 	 * @param variables (used when the feature has a non-primitive type)
 	 */
-	private OclExpression getCompatibleValue (EStructuralFeature feature, List<? extends VariableDeclaration> variables) {
+	protected OclExpression getCompatibleValue (EStructuralFeature feature, List<? extends VariableDeclaration> variables) {
 		return getCompatibleValue(feature.getEType().getName(), feature.getUpperBound()==1, feature.isOrdered(), variables);
 	}
 	
@@ -219,7 +233,7 @@ public class BindingCreationMutator extends AbstractMutator {
 	 * @param ordered (used in case of collections, i.e., when monovalued==true)
 	 * @param variables (used when the type is not primitive)
 	 */
-	private OclExpression getCompatibleValue (String type, boolean monovalued, boolean ordered, List<? extends VariableDeclaration> variables) {
+	protected OclExpression getCompatibleValue (String type, boolean monovalued, boolean ordered, List<? extends VariableDeclaration> variables) {
 		OclExpression expression = null;
 		
 		if (monovalued) {
@@ -259,7 +273,7 @@ public class BindingCreationMutator extends AbstractMutator {
 	 * @param feature
 	 * @return
 	 */
-	private OclExpression getIncompatibleValue (EStructuralFeature feature, List<? extends VariableDeclaration> variables) {
+	protected OclExpression getIncompatibleValue (EStructuralFeature feature, List<? extends VariableDeclaration> variables) {
 		List<String> types = new ArrayList<String>();
 		if (!EMFUtils.isBoolean (feature.getEType().getName())) { types.add("Boolean"); }
 		if (!EMFUtils.isFloating(feature.getEType().getName())) { types.add("Double");  }
@@ -272,7 +286,7 @@ public class BindingCreationMutator extends AbstractMutator {
 	/**
 	 * It returns whether the received feature has a primitive type.
 	 */
-	private boolean hasPrimitiveType (EStructuralFeature feature) {
+	protected boolean hasPrimitiveType (EStructuralFeature feature) {
 		return EMFUtils.isBoolean(feature.getEType().getName()) || EMFUtils.isFloating(feature.getEType().getName()) ||
 			   EMFUtils.isInteger(feature.getEType().getName()) || EMFUtils.isString(feature.getEType().getName())   ;	
 	}
