@@ -66,7 +66,7 @@ public abstract class AbstractDeletionMutator extends AbstractMutator {
 					// mutation: remove object
 					if (link!=null) {
 						LocatedElement object = (LocatedElement) link; //(LocatedElement)wrapper.target(link);
-						if (ToDeleteClass.isAssignableFrom(object.getClass())) {
+						if (ToDeleteClass.isAssignableFrom(object.getClass()) && confirmDeletion(object)) {
 							container.eSet(feature, null);
 
 							// mutation: documentation
@@ -92,9 +92,9 @@ public abstract class AbstractDeletionMutator extends AbstractMutator {
 						for (int i=0; i<size; i++) { 
 
 							// mutation: remove object
-							LocatedElement        eobject = (LocatedElement) link.get(i);
+							LocatedElement eobject = (LocatedElement) link.get(i);
 							//LocatedElement object = (LocatedElement)wrapper.target(eobject);
-							if (ToDeleteClass.isAssignableFrom(eobject.getClass())) {
+							if (ToDeleteClass.isAssignableFrom(eobject.getClass()) && confirmDeletion(eobject)) {
 								link.remove(i);
 
 								// mutation: documentation
@@ -116,4 +116,7 @@ public abstract class AbstractDeletionMutator extends AbstractMutator {
 			}
 		}
 	}
+	
+	// override in subclasses to check additional constraints before deletion 
+	protected boolean confirmDeletion (LocatedElement element) { return true; }
 }
