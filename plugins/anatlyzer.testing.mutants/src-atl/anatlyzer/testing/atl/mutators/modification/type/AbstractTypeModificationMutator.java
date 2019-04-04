@@ -15,9 +15,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EDataTypeEList;
-import org.eclipse.m2m.atl.core.emf.EMFModel;
 
-import witness.generator.MetaModel;
 import anatlyzer.atl.model.ATLModel;
 import anatlyzer.atlext.ATL.LocatedElement;
 import anatlyzer.atlext.ATL.Module;
@@ -151,7 +149,7 @@ public abstract class AbstractTypeModificationMutator extends AbstractMutator {
 	 * @param metamodel
 	 * @return
 	 */
-	private List<EObject> replacements(ATLModel atlModel, EObject toReplace, MuMetaModel[] metamodels) {
+	protected List<EObject> replacements(ATLModel atlModel, EObject toReplace, MuMetaModel[] metamodels) {
 		List<EObject> replacements = new ArrayList<EObject>();
 		
 		EPackage pack          = toReplace.eClass().getEPackage();
