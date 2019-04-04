@@ -55,7 +55,7 @@ public class RSMD extends AbstractModificationMutator {
 					// remove last navigation step
 					if (root instanceof Binding) 
 						 ((Binding)root).setValue((NavigationOrAttributeCallExp)previousNavigation);
-					if (root instanceof LoopExp) 
+					else if (root instanceof LoopExp) 
 						 ((LoopExp)root).setSource((NavigationOrAttributeCallExp)previousNavigation);
 					else if (root instanceof InPattern) 
 						 ((InPattern)root).setFilter((NavigationOrAttributeCallExp)previousNavigation);
@@ -65,7 +65,7 @@ public class RSMD extends AbstractModificationMutator {
 						((OperationCallExp)root).getArguments().set(0, (NavigationOrAttributeCallExp)previousNavigation);
 					
 					// mutation: documentation
-					if (comments!=null) comments.add("\n-- MUTATION \"" + this.getDescription() + "\" deleted " + toString(lastNavigation) + " (line " + ((LocatedElement)lastNavigation).getLocation() + " of original transformation)\n");
+					if (comments!=null) comments.add("\n-- MUTATION \"" + this.getDescription() + "\" deleted " + toString(lastNavigation) + " after " + toString(previousNavigation) + " (line " + ((LocatedElement)lastNavigation).getLocation() + " of original transformation)\n");
 					
 					// restore original value
 					final EDataTypeEList<String>       fComments           = comments;
@@ -76,7 +76,7 @@ public class RSMD extends AbstractModificationMutator {
 						if (fComments!=null) fComments.remove(fComments.size()-1);
 						if (root instanceof Binding)                           
 							((Binding)root).setValue(fLastNavigation);
-						if (root instanceof LoopExp)                           
+						else if (root instanceof LoopExp)                           
 							((LoopExp)root).setSource(fLastNavigation);
 						else if (root instanceof InPattern) 
 							 ((InPattern)root).setFilter(fLastNavigation);

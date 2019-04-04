@@ -97,7 +97,7 @@ public class NavigationModificationMutator extends AbstractFeatureModificationMu
 	 * @param containee
 	 * @param container
 	 */
-	private String toString (EObject container, EObject containee) {
+	protected String toString (EObject container, EObject containee) {
 		EObject next   = containee;
 		String  string = "";
 		do {
@@ -115,7 +115,7 @@ public class NavigationModificationMutator extends AbstractFeatureModificationMu
 	 * @param outputMM
 	 * @return
 	 */
-	private String getType (EObject container, VariableExp containee, MuMetaModel inputMM, MuMetaModel outputMM) {
+	protected String getType (EObject container, VariableExp containee, MuMetaModel inputMM, MuMetaModel outputMM) {
 		EClassifier         c   = null;
 		VariableDeclaration def = containee.getReferredVariable();
 		
