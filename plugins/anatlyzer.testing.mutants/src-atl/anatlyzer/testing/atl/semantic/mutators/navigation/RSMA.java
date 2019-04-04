@@ -20,7 +20,6 @@ import anatlyzer.atlext.ATL.Module;
 import anatlyzer.atlext.OCL.LoopExp;
 import anatlyzer.atlext.OCL.NavigationOrAttributeCallExp;
 import anatlyzer.atlext.OCL.OperationCallExp;
-import anatlyzer.atlext.OCL.PropertyCallExp;
 import anatlyzer.atlext.OCL.VariableExp;
 import anatlyzer.atlext.OCL.impl.NavigationOrAttributeCallExpImpl;
 import anatlyzer.testing.atl.mutators.modification.feature.NavigationModificationMutator;
@@ -61,45 +60,51 @@ public class RSMA extends NavigationModificationMutator {
 				if (root instanceof OperationCallExp || root instanceof Binding || root instanceof LoopExp || root instanceof InPattern) {
 					
 				    // for each reference of in tpe of last expression, add extra navigation 
-				    for (EReference option : mmsource.getEAllReferences()) { 
+				    for (EReference option : mmsource.getEAllReferences()) {
+				    	boolean proceed = true;
 
 						// create additional navigation expression 
 						NavigationOrAttributeCallExp extraNavigation = new NavigationOrAttributeCallExpImpl() {};
-						extraNavigation.setSource((NavigationOrAttributeCallExp)lastNavigation);					
 				    	extraNavigation.setName(option.getName());
 						if (root instanceof Binding) 
-							((Binding)root).setValue((NavigationOrAttributeCallExp)extraNavigation);
+							((Binding)root).setValue(extraNavigation);
 						else if (root instanceof LoopExp) 
-							((LoopExp)root).setSource((NavigationOrAttributeCallExp)extraNavigation);
+							((LoopExp)root).setSource(extraNavigation);
 						else if (root instanceof InPattern) 
-							((InPattern)root).setFilter((NavigationOrAttributeCallExp)extraNavigation);
-						else if (((PropertyCallExp)root).getSource()==lastNavigation)
-							((PropertyCallExp)root).setSource((NavigationOrAttributeCallExp)extraNavigation);
-						else if (((OperationCallExp)root).getArguments().get(0)==lastNavigation) 
-							((OperationCallExp)root).getArguments().set(0, (NavigationOrAttributeCallExp)extraNavigation);
+							((InPattern)root).setFilter(extraNavigation);
+						else if (((OperationCallExp)root).getSource()==lastNavigation)
+							((OperationCallExp)root).setSource(extraNavigation);
+						else if (((OperationCallExp)root).getArguments().size()>0 && ((OperationCallExp)root).getArguments().get(0)==lastNavigation) 
+							((OperationCallExp)root).getArguments().set(0, extraNavigation);
+						else proceed = false;
 
-						// mutation: documentation
-						if (comments!=null) comments.add("\n-- MUTATION \"" + this.getDescription() + "\" added " + option.getName() + " after " + toString(lastNavigation) + " (line " + ((LocatedElement)lastNavigation).getLocation() + " of original transformation)\n");
+						if (proceed) {
+							extraNavigation.setSource((NavigationOrAttributeCallExp)lastNavigation);
+							
+							// mutation: documentation
+							if (comments!=null) comments.add("\n-- MUTATION \"" + this.getDescription() + "\" added " + option.getName() + " after " + toString(lastNavigation) + " (line " + ((LocatedElement)lastNavigation).getLocation() + " of original transformation)\n");
 
-						// restore original value
-						final EDataTypeEList<String>       fComments        = comments;
-						final NavigationOrAttributeCallExp fLastNavigation  = (NavigationOrAttributeCallExp)lastNavigation;
-						final NavigationOrAttributeCallExp fExtraNavigation = (NavigationOrAttributeCallExp)extraNavigation;
-						registerUndo(wrapper, () -> {
-							// remove comment
-							if (fComments!=null) fComments.remove(fComments.size()-1);
-						    // undo changes
-							if (root instanceof Binding)
-								((Binding)root).setValue(fLastNavigation);
-							else if (root instanceof LoopExp)                           
-								((LoopExp)root).setSource(fLastNavigation);
-							else if (root instanceof InPattern) 
-								((InPattern)root).setFilter(fLastNavigation);
-							else if (((PropertyCallExp)root).getSource()==fExtraNavigation)
-								((PropertyCallExp)root).setSource(fLastNavigation);
-							else if (((OperationCallExp)root).getArguments().get(0)==fExtraNavigation)
-								((PropertyCallExp)root).setSource(fLastNavigation);
-						});
+							// restore original value
+							final EDataTypeEList<String>       fComments        = comments;
+							final NavigationOrAttributeCallExp fLastNavigation  = (NavigationOrAttributeCallExp)lastNavigation;
+							final NavigationOrAttributeCallExp fExtraNavigation = extraNavigation;
+							registerUndo(wrapper, () -> {
+								// remove comment
+								if (fComments!=null) fComments.remove(fComments.size()-1);
+								// undo changes
+								if (root instanceof Binding)
+									((Binding)root).setValue(fLastNavigation);
+								else if (root instanceof LoopExp)                           
+									((LoopExp)root).setSource(fLastNavigation);
+								else if (root instanceof InPattern) 
+									((InPattern)root).setFilter(fLastNavigation);
+								else if (((OperationCallExp)root).getSource()==fExtraNavigation)
+									((OperationCallExp)root).setSource(fLastNavigation);
+								else if (((OperationCallExp)root).getArguments().size()>0 && ((OperationCallExp)root).getArguments().get(0)==fExtraNavigation)
+									((OperationCallExp)root).getArguments().set(0, fLastNavigation);
+								fExtraNavigation.setSource(null);
+							});
+						}
 					}
 				}
 			}

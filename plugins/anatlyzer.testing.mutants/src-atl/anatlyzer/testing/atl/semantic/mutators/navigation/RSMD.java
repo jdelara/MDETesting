@@ -18,7 +18,6 @@ import anatlyzer.atlext.ATL.Module;
 import anatlyzer.atlext.OCL.LoopExp;
 import anatlyzer.atlext.OCL.NavigationOrAttributeCallExp;
 import anatlyzer.atlext.OCL.OperationCallExp;
-import anatlyzer.atlext.OCL.PropertyCallExp;
 import anatlyzer.atlext.OCL.VariableExp;
 import anatlyzer.testing.atl.mutators.modification.AbstractModificationMutator;
 import anatlyzer.testing.mutants.MuMetaModel;
@@ -59,9 +58,9 @@ public class RSMD extends AbstractModificationMutator {
 						 ((LoopExp)root).setSource((NavigationOrAttributeCallExp)previousNavigation);
 					else if (root instanceof InPattern) 
 						 ((InPattern)root).setFilter((NavigationOrAttributeCallExp)previousNavigation);
-					else if (((PropertyCallExp)root).getSource()==lastNavigation)
-						 ((PropertyCallExp)root).setSource((NavigationOrAttributeCallExp)previousNavigation);
-					else if (((OperationCallExp)root).getArguments().get(0)==lastNavigation) 
+					else if (((OperationCallExp)root).getSource()==lastNavigation)
+						 ((OperationCallExp)root).setSource((NavigationOrAttributeCallExp)previousNavigation);
+					else if (((OperationCallExp)root).getArguments().size()>0 && ((OperationCallExp)root).getArguments().get(0)==lastNavigation) 
 						((OperationCallExp)root).getArguments().set(0, (NavigationOrAttributeCallExp)previousNavigation);
 					
 					// mutation: documentation
@@ -80,10 +79,10 @@ public class RSMD extends AbstractModificationMutator {
 							((LoopExp)root).setSource(fLastNavigation);
 						else if (root instanceof InPattern) 
 							 ((InPattern)root).setFilter(fLastNavigation);
-						else if (((PropertyCallExp)root).getSource()==fPreviousNavigation)
-							((PropertyCallExp)root).setSource(fLastNavigation);
-						else if (((OperationCallExp)root).getArguments().get(0)==fPreviousNavigation)
-							((PropertyCallExp)root).setSource(fLastNavigation);
+						else if (((OperationCallExp)root).getSource()==fPreviousNavigation)
+							((OperationCallExp)root).setSource(fLastNavigation);
+						else if (((OperationCallExp)root).getArguments().size()>0 && ((OperationCallExp)root).getArguments().get(0)==fPreviousNavigation)
+							((OperationCallExp)root).getArguments().set(0, fLastNavigation);
 						fLastNavigation.setSource(fPreviousNavigation);
 					});
 				}
