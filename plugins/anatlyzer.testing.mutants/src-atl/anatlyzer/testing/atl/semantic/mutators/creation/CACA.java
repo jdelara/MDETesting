@@ -16,10 +16,9 @@ import anatlyzer.atlext.ATL.ATLFactory;
 import anatlyzer.atlext.ATL.Binding;
 import anatlyzer.atlext.ATL.OutPatternElement;
 import anatlyzer.atlext.ATL.Rule;
+import anatlyzer.atlext.OCL.CollectionExp;
 import anatlyzer.atlext.OCL.OCLFactory;
 import anatlyzer.atlext.OCL.OclExpression;
-import anatlyzer.atlext.OCL.SequenceExp;
-import anatlyzer.atlext.OCL.SetExp;
 import anatlyzer.atlext.OCL.VariableDeclaration;
 import anatlyzer.atlext.OCL.VariableExp;
 import anatlyzer.testing.atl.mutators.creation.BindingCreationMutator;
@@ -37,54 +36,45 @@ public class CACA extends BindingCreationMutator {
 		List<Binding> newbindings = new ArrayList<>();
 		for (EStructuralFeature feature : outputElementType.getEAllReferences()) {
 			// binding for every reference of the output type, no matter whether a binding for the same feature exists
-			OclExpression value = getCompatibleValue(wrapper, feature, ivariables);
-			if (value==null) continue;
-			String propertyName = feature.getName();
-			Binding binding     = ATLFactory.eINSTANCE.createBinding();
-			binding.setPropertyName( propertyName );
-			binding.setValue( getCompatibleValue(wrapper, feature, ivariables) );
-			newbindings.add(binding);
+			List<OclExpression> values = getCompatibleValues(wrapper, feature, ivariables);
+			for (OclExpression value : values) {
+				String propertyName = feature.getName();
+				Binding binding     = ATLFactory.eINSTANCE.createBinding();
+				binding.setPropertyName(propertyName);
+				binding.setValue(value);
+				newbindings.add(binding);
+			}
 		}
 		return newbindings;
 	}
 	
-	// TO-DO: return list of compatible values, not just the first one
-	protected OclExpression getCompatibleValue (ATLModel wrapper, EStructuralFeature feature, List<? extends VariableDeclaration> variables) {
-		OclExpression expression = null;
-		String        type       = feature.getEType().getName();
+	protected List<OclExpression> getCompatibleValues (ATLModel wrapper, EStructuralFeature feature, List<? extends VariableDeclaration> variables) {
+		List<OclExpression> values = new ArrayList<>();
+		String featureType = feature.getEType().getName();
 
-		// for each input variable
-		for (int i=0; i<variables.size(); i++) {
+		// for each input variable:
+		for (VariableDeclaration variable : variables) {
 			
-			// obtain rule with input=variable.type and output=type
+			// if there is a rule with from=variable.type and to=feature.type...
 			for (Rule rule : (List<Rule>)wrapper.allObjectsOf(Rule.class)) {
-				List<? extends VariableDeclaration> othervariables = getVariableDeclarations(rule);
-				if (!rule.getOutPattern().getElements().isEmpty() &&
-					!othervariables.isEmpty() &&						
-					rule.getOutPattern().getElements().get(0).getType().getName().equals(type) &&
-					othervariables.get(0).getType().getName().equals(variables.get(i).getType().getName())) {
+				List<? extends VariableDeclaration> ruleInputTypes = getVariableDeclarations(rule);
+				String ruleInputType  = ruleInputTypes.isEmpty()? "" : ruleInputTypes.get(0).getType().getName();
+				String ruleOutputType = rule.getOutPattern().getElements().isEmpty()? "" : rule.getOutPattern().getElements().get(0).getType().getName();				
+				if (ruleInputType.equals(variable.getType().getName()) && ruleOutputType.equals(featureType)) {
 					
-					// compatible value found: create variable expression
-					System.out.println("-------");
-					expression = OCLFactory.eINSTANCE.createVariableExp();
-					((VariableExp)expression).setReferredVariable(variables.get(i));
-					
-					// multivalued feature: add variable to collection
+					// ...then the variable is compatible with the feature
+					OclExpression expression = OCLFactory.eINSTANCE.createVariableExp();
+					((VariableExp)expression).setReferredVariable(variable);
 					if (feature.getUpperBound()!=1) {
 						VariableExp aux = (VariableExp)expression;
-						if (feature.isOrdered()) {
-							expression = OCLFactory.eINSTANCE.createSequenceExp();
-							((SequenceExp)expression).getElements().add(aux);
-						}
-						else {
-							expression = OCLFactory.eINSTANCE.createSetExp();
-							((SetExp)expression).getElements().add(aux);
-						}
+						expression = feature.isOrdered()? OCLFactory.eINSTANCE.createSequenceExp() : OCLFactory.eINSTANCE.createSetExp();
+						((CollectionExp)expression).getElements().add(aux);
 					}
-					return expression;
+					values.add(expression);
+					break;
 				}
 			}
 		}
-		return expression;
+		return values;
 	}
 }
