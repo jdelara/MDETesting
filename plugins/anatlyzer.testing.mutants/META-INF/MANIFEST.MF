@@ -20,7 +20,9 @@ Require-Bundle: org.eclipse.ui,
  anatlyzer.use.witness,
  anatlyzer.atl.editor,
  anatlyzer.atl.standalone.api,
- anatlyzer.testing.common
+ anatlyzer.testing.common,
+ org.eclipse.jdt.annotation,
+ anatlyzer.testing.modelgen
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: anatlyzer.testing.atl.mutators,
@@ -39,3 +41,4 @@ Export-Package: anatlyzer.testing.atl.mutators,
  testing.metamodel.mutators.breaking,
  testing.metamodel.mutators.nonbreaking,
  testing.utils
+Import-Package: anatlyzer.testing.atl.mutators

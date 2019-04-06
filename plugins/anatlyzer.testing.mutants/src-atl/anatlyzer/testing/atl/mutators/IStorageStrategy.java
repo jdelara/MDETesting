@@ -2,22 +2,28 @@ package anatlyzer.testing.atl.mutators;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import org.eclipse.jdt.annotation.Nullable;
 
 import anatlyzer.atl.model.ATLModel;
 import anatlyzer.atl.util.ATLSerializer;
+import anatlyzer.testing.mutants.AtlMutantReference;
+import anatlyzer.testing.mutants.IMutantGenerator.IMutantReference;
 
 public interface IStorageStrategy {
 
-	void save(ATLModel atlModel, MutationInfo info);
+	@Nullable
+	IMutantReference save(ATLModel atlModel, MutationInfo info);
 
 	public static final IStorageStrategy NULL = new IStorageStrategy() {		
 		@Override
-		public void save(ATLModel atlModel, MutationInfo info) {
+		public IMutantReference save(ATLModel atlModel, MutationInfo info) {
 			System.err.println("No storage strategy.");
+			return null;
 		}
 	};
 	
@@ -32,13 +38,14 @@ public interface IStorageStrategy {
 		}
 
 		@Override
-		public void save(ATLModel atlModel, MutationInfo info) {
+		public IMutantReference save(ATLModel atlModel, MutationInfo info) {
 			maxMap.putIfAbsent(info.getMutatorName(), 0);
 			int num = maxMap.get(info.getMutatorName());;
 			if ( num < max ) {
 				maxMap.put(info.getMutatorName(), num + 1);				
-				delegate.save(atlModel, info);
+				return delegate.save(atlModel, info);
 			}
+			return null;
 		}
 	}
 	
@@ -52,7 +59,7 @@ public interface IStorageStrategy {
 		}
 		
 		@Override
-		public void save(ATLModel atlModel, MutationInfo info) {
+		public IMutantReference save(ATLModel atlModel, MutationInfo info) {
 			count++;
 			
 			String path = folder + File.separator + info.getMutatorName() + "_" + count + ".atl";
@@ -62,6 +69,8 @@ public interface IStorageStrategy {
 				// TODO: Do this checked?
 				throw new RuntimeException(e);
 			}
+			
+			return new AtlMutantReference(new File(path));
 		}
 		
 
@@ -79,6 +88,15 @@ public interface IStorageStrategy {
 				return m.group(1);
 			}
 			throw new IllegalStateException("Can't recognize " + path);*/
+		}
+	}
+	
+	public static abstract class DelegatedStrategy implements IStorageStrategy {
+
+		protected IStorageStrategy strategy;
+
+		public DelegatedStrategy(IStorageStrategy strategy) {
+			this.strategy = strategy;
 		}
 		
 	}

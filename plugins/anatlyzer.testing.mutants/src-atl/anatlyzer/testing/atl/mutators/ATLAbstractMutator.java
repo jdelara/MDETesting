@@ -1,24 +1,40 @@
 package anatlyzer.testing.atl.mutators;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 
 import anatlyzer.atl.model.ATLModel;
 import anatlyzer.atlext.ATL.LocatedElement;
+import anatlyzer.testing.mutants.IMutantGenerator.IMutantReference;
 
 public class ATLAbstractMutator {
 	protected IStorageStrategy storage = IStorageStrategy.NULL;
+	
+	public List<IMutantReference> generatedMutants = new ArrayList<>();
+	
+	public List<? extends IMutantReference> getGeneratedMutants() {
+		return generatedMutants;
+	}
 	
 	public void setStorageStrategy(IStorageStrategy strategy) {
 		this.storage = strategy;
 	}
 	
+	protected void registerUndo(ATLModel mutatedModel, LocatedElement elem, Runnable undo) {
+		registerUndo(mutatedModel, new MutationInfo(this, elem), undo);
+	}
+
 	protected void registerUndo(ATLModel mutatedModel, Runnable undo) {
 		registerUndo(mutatedModel, new MutationInfo(this), undo);
 	}
 	
 	protected void registerUndo(ATLModel mutatedModel, MutationInfo info, Runnable undo) {
-		storage.save(mutatedModel, info);
+		IMutantReference ref = storage.save(mutatedModel, info);
+		if ( ref != null )
+			generatedMutants.add(ref);
 		undo.run();
 	}
 	

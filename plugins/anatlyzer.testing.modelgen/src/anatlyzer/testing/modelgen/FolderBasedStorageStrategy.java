@@ -14,6 +14,12 @@ public class FolderBasedStorageStrategy implements IStorageStrategy {
 
 	private File folder;
 	private int count;
+	private String nameFragment = "mutant";
+	
+	public FolderBasedStorageStrategy(File f, String nameFragment) {
+		this(f);
+		this.nameFragment = nameFragment;
+	}
 	
 	public FolderBasedStorageStrategy(File f) {
 		if ( ! f.exists() ) {
@@ -29,7 +35,7 @@ public class FolderBasedStorageStrategy implements IStorageStrategy {
 
 	@Override
 	public IGeneratedModelReference save(IWitnessModel model, Metamodel metamodel) {
-		String modelFile = folder.getAbsolutePath() + File.separator + "mutant_" + count + ".xmi";
+		String modelFile = folder.getAbsolutePath() + File.separator + nameFragment + "_" + count + ".xmi";
 		count++;
 		try {
 			Map<Object, Object> options = new HashMap<>();

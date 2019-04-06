@@ -71,6 +71,15 @@ public class PathBasedModelGenerator extends AbstractModelGenerator implements I
 		return this;
 	}
 	
+	public List<IGeneratedModelReference> generateModels(@NonNull OclExpression expr, @NonNull IProgressMonitor monitor) {
+		List<IGeneratedModelReference> generated = new ArrayList<IGeneratedModelReference>(); 
+		
+		List<? extends Metamodel> metamodels = getMetamodels();		
+		generateModels(expr, metamodels, generated, monitor);
+		
+		return generated;
+	}
+	
 	@Override
 	public List<IGeneratedModelReference> generateModels(@NonNull IProgressMonitor monitor) {
 		List<IGeneratedModelReference> generated = new ArrayList<IGeneratedModelReference>(); 
@@ -81,55 +90,16 @@ public class PathBasedModelGenerator extends AbstractModelGenerator implements I
 		PathComputationVisitor visitor = new PathComputationVisitor(paths);
 		visitor.startVisiting(root);
 
-		List<? extends Metamodel> metamodels = ATLUtils.getModelInfo(trafo.getATLModel()).stream()
-			.filter(i -> i.isInput())
-			.map(i -> trafo.getNamespaces().getNamespace(i.getMetamodelName()))
-			.map(n -> new Metamodel(n.getResource()))
-			.collect(Collectors.toList());
+		List<? extends Metamodel> metamodels = getMetamodels();
 		
 		monitor.beginWork("Model generation", paths.size());
 		
 		for(OclExpression path : paths) {			
-			wf.setWitnessGenerationModel(WitnessGenerationMode.MANDATORY_FULL_METAMODEL);
-			// wf.setScopeCalculator(new GenStrategyScope(propertiesUse));
+			if (monitor.isCancelled())
+				break;
 			
-			if ( wf instanceof UseWitnessFinder ) {
-				((UseWitnessFinder) wf).withRetyingStrategy(RetypingStrategy.NULL);
-				((UseWitnessFinder) wf).setPreferDeclaredTypes(true);
-			}
+			generateModels(path, metamodels, generated, monitor);
 			
-			ConstraintSatisfactionChecker checker = ConstraintSatisfactionChecker.
-					withExpr(path).
-					withFinder(wf);
-
-			for(Map.Entry<String, Resource> mm : trafo.getNamespaces().getLogicalNamesToMetamodels().entrySet()) {
-				checker.configureMetamodel(mm.getKey(), mm.getValue());
-			}
-			
-			checker.check();
-
-			ProblemStatus result = checker.getFinderResult();
-			
-			Metamodel metamodel;
-			if ( metamodels.size() == 1 ) {
-				metamodel = metamodels.get(0);
-			} else {
-				// Maybe create a compound metamodel?
-				throw new UnsupportedOperationException("Multiple meta-models not supported yet");
-			}
-			
-			if ( AnalyserUtils.isConfirmed(result) ) {
-				IGeneratedModelReference ref = storageStrategy.save(wf.getFoundWitnessModel(), metamodel);
-				generated.add(ref);
-			} else if ( AnalyserUtils.isDiscarded(result)) {
-				System.out.println("[NO_MODEL_FOUND]: " + result );
-			} else {
-				System.out.println("Cannot generate model: " + result );
-			}	
-			
-			if ( monitor != null )
-				monitor.workDone("Processed model with result: " + result, 1);
-
 			if ( limit != -1 && generated.size() > limit ) {
 				break;
 			}
@@ -137,7 +107,57 @@ public class PathBasedModelGenerator extends AbstractModelGenerator implements I
 
 		return generated;
 	}
+
+	private List<Metamodel> getMetamodels() {
+		return ATLUtils.getModelInfo(trafo.getATLModel()).stream()
+			.filter(i -> i.isInput())
+			.map(i -> trafo.getNamespaces().getNamespace(i.getMetamodelName()))
+			.map(n -> new Metamodel(n.getResource()))
+			.collect(Collectors.toList());
+	}
 	
+	private void generateModels(@NonNull OclExpression path, List<? extends Metamodel> metamodels, List<IGeneratedModelReference> generated, @NonNull IProgressMonitor monitor) {
+		wf.setWitnessGenerationModel(WitnessGenerationMode.MANDATORY_FULL_METAMODEL);
+		// wf.setScopeCalculator(new GenStrategyScope(propertiesUse));
+		
+		if ( wf instanceof UseWitnessFinder ) {
+			((UseWitnessFinder) wf).withRetyingStrategy(RetypingStrategy.NULL);
+			((UseWitnessFinder) wf).setPreferDeclaredTypes(true);
+		}
+		
+		ConstraintSatisfactionChecker checker = ConstraintSatisfactionChecker.
+				withExpr(path).
+				withFinder(wf);
+
+		for(Map.Entry<String, Resource> mm : trafo.getNamespaces().getLogicalNamesToMetamodels().entrySet()) {
+			checker.configureMetamodel(mm.getKey(), mm.getValue());
+		}
+		
+		checker.check();
+
+		ProblemStatus result = checker.getFinderResult();
+		
+		Metamodel metamodel;
+		if ( metamodels.size() == 1 ) {
+			metamodel = metamodels.get(0);
+		} else {
+			// Maybe create a compound metamodel?
+			throw new UnsupportedOperationException("Multiple meta-models not supported yet");
+		}
+		
+		if ( AnalyserUtils.isConfirmed(result) ) {
+			IGeneratedModelReference ref = storageStrategy.save(wf.getFoundWitnessModel(), metamodel);
+			generated.add(ref);
+		} else if ( AnalyserUtils.isDiscarded(result)) {
+			System.out.println("[NO_MODEL_FOUND]: " + result );
+		} else {
+			System.out.println("Cannot generate model: " + result );
+		}	
+		
+		if ( monitor != null )
+			monitor.workDone("Processed model with result: " + result, 1);	
+	}
+
 	private static class PathComputationVisitor extends AbstractVisitor {
 		private @NonNull List<OclExpression> paths;
 		private @NonNull PathGenerator generator = new PathGenerator();

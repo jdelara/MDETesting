@@ -74,7 +74,7 @@ public class BindingCreationMutator extends AbstractMutator {
 								if (comments!=null) comments.add("\n-- MUTATION \"" + this.getDescription() + "\" " + toString(binding) + " in " + toString(outElement) + " (line " + outElement.getLocation() + " of original transformation)\n");
 								
 								final EDataTypeEList<String> fComments = comments;
-								registerUndo(wrapper, () -> {
+								registerUndo(wrapper, outElement, () -> {
 									// restore: remove added binding and comment
 									realbindings.remove(binding);
 									if (fComments!=null) fComments.remove(fComments.size()-1);

@@ -1,6 +1,5 @@
 package anatlyzer.testing.mutants;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +15,7 @@ import anatlyzer.testing.atl.mutators.AbstractMutator;
 import anatlyzer.testing.atl.mutators.IMutatorRegistry;
 import anatlyzer.testing.atl.mutators.IStorageStrategy;
 import anatlyzer.testing.common.IProgressMonitor;
+import anatlyzer.testing.mutants.IMutantGenerator.IMutantReference;
 import transML.exceptions.transException;
 
 /**
@@ -31,19 +31,23 @@ public class ATLMutantGenerator {
 	private List<String> outputMetamodels = new ArrayList<String>(); // output metamodels (OUT)
 	private ATLModel atlModel;
 	private long initTime;
-	private String folderMutants;
 	private IStorageStrategy strategy;
 	private IMutatorRegistry mutatorRegistry = new IMutatorRegistry.AllMutators();
 	private int limit = -1;
 	
-	public ATLMutantGenerator(AnalysisLoader loader, String folderMutants) throws ATLCoreException {
-		this(loader.getAtlTransformation(), loader.getNamespace(), folderMutants);
+	public ATLMutantGenerator(AnalysisLoader loader, String folderMutants) {
+		this(loader.getAtlTransformation(), loader.getNamespace(), 
+						new IStorageStrategy.FileBasedStartegy(folderMutants));
 	}
 	
-	public ATLMutantGenerator(ATLModel atlModel, GlobalNamespace namespace, String folderMutants) {
+	public ATLMutantGenerator(AnalysisLoader loader, IStorageStrategy strategy) {
+		this(loader.getAtlTransformation(), loader.getNamespace(), strategy);
+	}
+	
+	public ATLMutantGenerator(ATLModel atlModel, GlobalNamespace namespace, IStorageStrategy strategy) {
 		this.atlModel = atlModel;
 		this.namespace = namespace;
-		this.folderMutants = folderMutants;
+		this.strategy = strategy;
 
 		for (ModelInfo modelInfo : ATLUtils.getModelInfo(atlModel)) {
 			if ( modelInfo.isInput() ) {
@@ -77,43 +81,13 @@ public class ATLMutantGenerator {
 		return this;
 	}
 	
-//	/**
-//	 * @param trafo transformation to be used in the evaluation
-//	 * @param temporalFolder temporal folder used to store the generated mutants and input test models
-//	 * @param strategy model generation strategy (Lite by default) 
-//	 * @throws ATLCoreException 
-//	 * @throws transException 
-//	 */
-//	public Tester (String trafo, String temporalFolder) throws ATLCoreException, transException { this (trafo, temporalFolder, ModelGenerationStrategy.STRATEGY.Lite);	}
-//	public Tester (String trafo, String temporalFolder, ModelGenerationStrategy.STRATEGY strategy) throws ATLCoreException, transException {
-//		this.rs       = new ResourceSetImpl();
-//		this.report   = new Report();
-//		this.atlFile  = trafo;
-//		this.atlModel = this.loadTransformationModel(trafo);
-//		this.loadMetamodelsFromTransformation();
-//		this.modelGenerationStrategy = strategy;
-//		// initialize temporal folders
-//		this.folderMutants = temporalFolder + "mutants" + File.separator;
-//		this.folderModels  = temporalFolder + "testmodels" + File.separator;
-//		this.folderTemp    = temporalFolder + "temp" + File.separator;
-//	}
-	
-	
-//	public void setGenerateMutants(boolean optionGenerateNewMutants) {
-//		this.generateMutants = optionGenerateNewMutants;
-//	}
-//	
-//	public void setGenerateTestModels(boolean optionGenerateTestModels) {
-//		this.generateTestModels = optionGenerateTestModels;
-//	}
-
-	
 	/**
 	 * It generates mutants of a transformation.
+	 * @return 
 	 * @throws transException 
 	 * @throws ATLCoreException 
 	 */
-	public void generateMutants(IProgressMonitor monitor) {
+	public List<IMutantReference> generateMutants(IProgressMonitor monitor) {
 		MuMetaModel iMetaModel, oMetaModel;
 		
 		// TODO: Generate mutants using all meta-models, perhaps organizing them in source/target mutants
@@ -124,9 +98,8 @@ public class ATLMutantGenerator {
 		oMetaModel.setName (this.namespace.getNamespace(this.outputMetamodels.get(0)).getName());
 		
 		List<? extends AbstractMutator> operators = mutatorRegistry.getMutators();
-		IStorageStrategy strategy = this.strategy == null ? 
-				new IStorageStrategy.FileBasedStartegy(this.folderMutants) :
-				this.strategy;
+		
+		List<IMutantReference> references = new ArrayList<IMutantGenerator.IMutantReference>();
 		
 		monitor.beginWork("Generating mutants", operators.size());
 		for (AbstractMutator operator : operators) {
@@ -136,10 +109,14 @@ public class ATLMutantGenerator {
 			operator.setStorageStrategy(strategy);
 			monitor.beginWork("Generating mutant: " + operator.getClass().getSimpleName(), 1);
 			operator.generateMutants(atlModel, iMetaModel, oMetaModel);
+			
+			references.addAll( operator.getGeneratedMutants() );
+			
 			monitor.workDone("Generated", 1);
 		}
 		monitor.workDone("Generated mutants", operators.size());
 		
+		return references;
 	}
 
 	/**
