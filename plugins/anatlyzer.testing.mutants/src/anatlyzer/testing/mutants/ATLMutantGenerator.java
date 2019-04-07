@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.m2m.atl.core.ATLCoreException;
 
 import anatlyzer.atl.analyser.namespaces.GlobalNamespace;
 import anatlyzer.atl.model.ATLModel;
