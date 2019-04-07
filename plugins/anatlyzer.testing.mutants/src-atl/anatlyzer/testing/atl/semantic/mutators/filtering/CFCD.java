@@ -31,8 +31,7 @@ public class CFCD extends FilterDeletionMutator {
 		
 		// ---------------------------------------------------------------------------
 		// DELETION OF FILTER IN SELECT/REJECT OPERATORS	
-		// ---------------------------------------------------------------------------
-		
+		// ---------------------------------------------------------------------------		
 		List<IteratorExp> iterators = (List<IteratorExp>)wrapper.allObjectsOf(IteratorExp.class);
 		
 		// we will add a comment to the module, documenting the mutation 
