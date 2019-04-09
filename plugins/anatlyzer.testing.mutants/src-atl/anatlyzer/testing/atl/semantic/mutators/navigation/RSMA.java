@@ -88,7 +88,7 @@ public class RSMA extends NavigationModificationMutator {
 							final EDataTypeEList<String>       fComments        = comments;
 							final NavigationOrAttributeCallExp fLastNavigation  = (NavigationOrAttributeCallExp)lastNavigation;
 							final NavigationOrAttributeCallExp fExtraNavigation = extraNavigation;
-							registerUndo(wrapper, () -> {
+							registerUndo(wrapper, change(extraNavigation), () -> {
 								// remove comment
 								if (fComments!=null) fComments.remove(fComments.size()-1);
 								// undo changes

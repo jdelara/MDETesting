@@ -66,7 +66,7 @@ public class NavigationModificationMutator extends AbstractFeatureModificationMu
 
 						// restore original value
 						final EDataTypeEList<String> fComments = comments;
-						registerUndo(wrapper, () -> {
+						registerUndo(wrapper, change((LocatedElement) fNavigationExpression), () -> {
 							// remove comment
 							if (fComments!=null) fComments.remove(fComments.size()-1);
 							fNavigationExpression.eSet(featureDefinition, navigation);					

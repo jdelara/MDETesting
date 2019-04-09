@@ -58,7 +58,7 @@ public abstract class AbstractDeleteUnaryOperator extends AbstractMutator {
 						//this.save(atlModel, outputFolder, (Helper)exp);
 						
 						final EDataTypeEList<String> fComments = comments;
-						registerUndo(wrapper, info(operator), () -> {
+						registerUndo(wrapper, remove(operator), () -> {
 							// restore "not"
 							set(container, fFeature_container, not);
 							set(not, feature_not, content);

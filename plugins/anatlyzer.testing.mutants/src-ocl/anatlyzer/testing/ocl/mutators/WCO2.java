@@ -55,7 +55,7 @@ public class WCO2 extends AbstractMutator {
 							//this.save(atlModel, outputFolder, (Helper)exp);
 							
 							final EDataTypeEList<String> fComments = comments;
-							registerUndo(wrapper, info(object2modify), () -> {
+							registerUndo(wrapper, change(object2modify), () -> {
 								if (fComments!=null) fComments.remove(fComments.size()-1);
 
 								// copy features from replacement to original object
@@ -92,7 +92,7 @@ public class WCO2 extends AbstractMutator {
 
 							final int idx = i;
 							final EDataTypeEList<String> fComments = comments;
-							registerUndo(wrapper, info(object2modify), () -> {
+							registerUndo(wrapper, change(object2modify), () -> {
 								if (fComments!=null) fComments.remove(fComments.size()-1);
 
 								// copy features from replacement to original object

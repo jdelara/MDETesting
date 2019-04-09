@@ -11,18 +11,26 @@ public class MutationInfo {
 
 	private ATLAbstractMutator mutator;
 	private LocatedElement mutatedElement;
+	private ChangeKind kind;
 
-	public MutationInfo(ATLAbstractMutator atlAbstractMutator, LocatedElement elem) {
+	public enum ChangeKind {
+		ADD,
+		CHANGE,
+		REMOVE,
+	}
+	
+	public MutationInfo(ATLAbstractMutator atlAbstractMutator, LocatedElement elem, ChangeKind kind) {
 		this.mutator = atlAbstractMutator;
 		this.mutatedElement = elem;
-	}
-
-	public MutationInfo(ATLAbstractMutator atlAbstractMutator) {
-		this(atlAbstractMutator, null);
+		this.kind = kind;
 	}
 
 	public ATLAbstractMutator getMutator() {
 		return mutator;
+	}
+	
+	public ChangeKind getKind() {
+		return kind;
 	}
 	
 	public LocatedElement getMutatedElement() {

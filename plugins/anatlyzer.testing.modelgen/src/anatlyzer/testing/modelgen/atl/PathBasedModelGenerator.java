@@ -33,6 +33,7 @@ import anatlyzer.atl.witness.ConstraintSatisfactionChecker;
 import anatlyzer.atl.witness.IWitnessFinder;
 import anatlyzer.atl.witness.UseWitnessFinder;
 import anatlyzer.atl.witness.IWitnessFinder.WitnessGenerationMode;
+import anatlyzer.atlext.ATL.LocatedElement;
 import anatlyzer.atlext.ATL.Unit;
 import anatlyzer.atlext.OCL.BooleanExp;
 import anatlyzer.atlext.OCL.NavigationOrAttributeCallExp;
@@ -71,11 +72,14 @@ public class PathBasedModelGenerator extends AbstractModelGenerator implements I
 		return this;
 	}
 	
-	public List<IGeneratedModelReference> generateModels(@NonNull OclExpression expr, @NonNull IProgressMonitor monitor) {
+	public List<IGeneratedModelReference> generateModels(@NonNull LocatedElement element, @NonNull IProgressMonitor monitor) {
 		List<IGeneratedModelReference> generated = new ArrayList<IGeneratedModelReference>(); 
 		
 		List<? extends Metamodel> metamodels = getMetamodels();		
-		generateModels(expr, metamodels, generated, monitor);
+
+		PathGenerator generator = new PathGenerator();
+		OclExpression path = PathComputationVisitor.getPathCondition(generator, element);
+		generateModels(path, metamodels, generated, monitor);
 		
 		return generated;
 	}
@@ -182,10 +186,15 @@ public class PathBasedModelGenerator extends AbstractModelGenerator implements I
 			if ( expression instanceof VariableExp && ((VariableExp) expression).getReferredVariable().getVarName().equals("thisModule"))
 				return;
 			
-			ProblemPath path = generator.generatePath(expression, PathGenerationNode::new);
+			OclExpression pathCondition = getPathCondition(generator, expression);
 			
-			OclExpression pathCondition = CSPGenerator.generateCSPCondition(path, false);
 			paths.add(pathCondition);
+		}
+
+		public static OclExpression getPathCondition(PathGenerator generator, LocatedElement element) {
+			ProblemPath path = generator.generatePath(element, PathGenerationNode::new);			
+			OclExpression pathCondition = CSPGenerator.generateCSPCondition(path, false);
+			return pathCondition;
 		}
 	}
 

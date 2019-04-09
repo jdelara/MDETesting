@@ -17,6 +17,7 @@ import anatlyzer.atlext.ATL.MatchedRule;
 import anatlyzer.atlext.ATL.Module;
 import anatlyzer.atlext.ATL.OutPatternElement;
 import anatlyzer.atlext.ATL.Rule;
+import anatlyzer.atlext.ATL.RuleWithPattern;
 import anatlyzer.atlext.OCL.BooleanExp;
 import anatlyzer.atlext.OCL.IntegerExp;
 import anatlyzer.atlext.OCL.OCLFactory;
@@ -74,7 +75,7 @@ public class BindingCreationMutator extends AbstractMutator {
 								if (comments!=null) comments.add("\n-- MUTATION \"" + this.getDescription() + "\" " + toString(binding) + " in " + toString(outElement) + " (line " + outElement.getLocation() + " of original transformation)\n");
 								
 								final EDataTypeEList<String> fComments = comments;
-								registerUndo(wrapper, outElement, () -> {
+								registerUndo(wrapper, add(binding), () -> {
 									// restore: remove added binding and comment
 									realbindings.remove(binding);
 									if (fComments!=null) fComments.remove(fComments.size()-1);
@@ -88,8 +89,8 @@ public class BindingCreationMutator extends AbstractMutator {
 	}
 	
 	protected List<? extends VariableDeclaration> getVariableDeclarations (Rule rule) {
-		if (rule instanceof MatchedRule && ((MatchedRule)rule).getInPattern()!=null) 
-			return ((MatchedRule)rule).getInPattern().getElements();
+		if (rule instanceof RuleWithPattern && ((RuleWithPattern)rule).getInPattern()!=null) 
+			return ((RuleWithPattern)rule).getInPattern().getElements();
 		if (rule.getVariables() != null) 
 			return rule.getVariables();
 		return new ArrayList<>();                 
@@ -255,7 +256,11 @@ public class BindingCreationMutator extends AbstractMutator {
 			}
 			else {
 				expression = OCLFactory.eINSTANCE.createVariableExp();
-				if (variables.size()>0) ((VariableExp)expression).setReferredVariable(variables.get(0));
+				if (variables.size()>0) {
+					((VariableExp)expression).setReferredVariable(variables.get(0));
+				} else {
+					throw new IllegalStateException();
+				}
 			}
 		}
 		

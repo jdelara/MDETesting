@@ -74,7 +74,7 @@ public abstract class AbstractDeletionMutator extends AbstractMutator {
 
 							// restore: restore object and remove comment
 							final EDataTypeEList<String> fComments = comments;
-							registerUndo(wrapper, () -> {
+							registerUndo(wrapper, remove(object), () -> {
 								container.eSet(feature, link);
 								if (fComments!=null) fComments.remove(fComments.size()-1);
 							});
@@ -104,7 +104,7 @@ public abstract class AbstractDeletionMutator extends AbstractMutator {
 								// restore: restore object and remove comment
 								final EDataTypeEList<String> fComments = comments;
 								final int idx = i;
-								registerUndo(wrapper, () -> {
+								registerUndo(wrapper, remove(eobject), () -> {
 									link.add(idx, eobject);
 									if (fComments!=null) fComments.remove(fComments.size()-1);
 								});

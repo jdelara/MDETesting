@@ -45,7 +45,7 @@ public class MCO extends AbstractMutator {
 					// if (comments!=null) comments.remove(comments.size()-1);
 				
 					final EDataTypeEList<String> fComments = comments;
-					registerUndo(wrapper, info(helper), () -> {
+					registerUndo(wrapper, remove(helper), () -> {
 						if (fComments!=null) fComments.remove(fComments.size()-1);
 						// restore helper
 						elements.add(index, original_helper);

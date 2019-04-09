@@ -55,7 +55,7 @@ public class WCO5 extends AbstractMutator {
 					
 					final EStructuralFeature fFeature = feature;
 					final EDataTypeEList<String> fComments = comments;
-					registerUndo(wrapper, info(helper), () -> {
+					registerUndo(wrapper, remove(helper), () -> {
 						if (fComments!=null) fComments.remove(fComments.size()-1);
 						// remove "not" from constraint
 						original_oclfeature.eSet(fFeature, not.eGet(clazz.getEStructuralFeature("source")));

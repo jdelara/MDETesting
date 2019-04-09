@@ -56,7 +56,7 @@ public class OutElementCreationMutator extends AbstractMutator {
 
 						// restore: remove added out-pattern element and comment
 						final EDataTypeEList<String> fComments = comments;
-						registerUndo(wrapper, () -> {
+						registerUndo(wrapper, add(element), () -> {
 							// restore: remove added out-pattern element and comment
 							realelements.remove(element);
 							if (fComments!=null) fComments.remove(fComments.size()-1);						

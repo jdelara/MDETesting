@@ -54,7 +54,7 @@ public class WCO1 extends AbstractMutator {
 						//if (comments!=null) comments.remove(comments.size()-1);
 						
 						final EDataTypeEList<String> fComments = comments;
-						registerUndo(wrapper, info(navigation), () -> {
+						registerUndo(wrapper, change(navigation), () -> {
 							// restore feature
 							original_navigation.eSet(feature, original_value);
 							if (fComments!=null) fComments.remove(fComments.size()-1);

@@ -45,7 +45,7 @@ public abstract class AbstractChangeStringValue extends AbstractMutator {
 								// this.save(atlModel, outputFolder, (Helper)exp);
 								
 								final EDataTypeEList<String> fComments = comments;
-								registerUndo(wrapper, info(element), () -> {
+								registerUndo(wrapper, change(element), () -> {
 									// restore: remove added binding and comment
 									original_element.eSet(feature, original_value);
 									if (fComments!=null) fComments.remove(fComments.size()-1);

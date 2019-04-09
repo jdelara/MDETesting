@@ -80,7 +80,7 @@ public abstract class AbstractModificationMutator extends AbstractMutator {
 
 						// restore original value					
 						final EDataTypeEList<String> fComments = comments;
-						registerUndo(wrapper, () -> {
+						registerUndo(wrapper, change(object2modify), () -> {
 							object2modify_src.eSet(featureDefinition, oldFeatureValue);
 							if (fComments!=null) fComments.remove(fComments.size()-1);
 						});						

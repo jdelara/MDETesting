@@ -57,7 +57,7 @@ public class ParentRuleModificationMutator extends AbstractMutator {
 				// restore: remove added comment
 				// restore original parent rule
 				final EDataTypeEList<String> fComments = comments;
-				registerUndo(wrapper, () -> {
+				registerUndo(wrapper, change(rule), () -> {
 					rule.eSet(feature, superrule);
 					if (fComments!=null) fComments.remove(fComments.size()-1);
 				});

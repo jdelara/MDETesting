@@ -8,6 +8,7 @@ import org.eclipse.emf.ecore.EObject;
 
 import anatlyzer.atl.model.ATLModel;
 import anatlyzer.atlext.ATL.LocatedElement;
+import anatlyzer.testing.atl.mutators.MutationInfo.ChangeKind;
 import anatlyzer.testing.mutants.IMutantGenerator.IMutantReference;
 
 public class ATLAbstractMutator {
@@ -23,13 +24,13 @@ public class ATLAbstractMutator {
 		this.storage = strategy;
 	}
 	
-	protected void registerUndo(ATLModel mutatedModel, LocatedElement elem, Runnable undo) {
-		registerUndo(mutatedModel, new MutationInfo(this, elem), undo);
-	}
+//	protected void registerUndo(ATLModel mutatedModel, LocatedElement elem, Runnable undo) {
+//		registerUndo(mutatedModel, new MutationInfo(this, elem), undo);
+//	}
 
-	protected void registerUndo(ATLModel mutatedModel, Runnable undo) {
-		registerUndo(mutatedModel, new MutationInfo(this), undo);
-	}
+//	protected void registerUndo(ATLModel mutatedModel, Runnable undo) {
+//		registerUndo(mutatedModel, new MutationInfo(this), undo);
+//	}
 	
 	protected void registerUndo(ATLModel mutatedModel, MutationInfo info, Runnable undo) {
 		IMutantReference ref = storage.save(mutatedModel, info);
@@ -38,9 +39,21 @@ public class ATLAbstractMutator {
 		undo.run();
 	}
 	
-	public MutationInfo info(LocatedElement elem) {
-		return new MutationInfo(this, elem);
+	public MutationInfo remove(LocatedElement elem) {
+		return new MutationInfo(this, elem, ChangeKind.REMOVE);
 	}
+	
+	public MutationInfo add(LocatedElement elem) {
+		return new MutationInfo(this, elem, ChangeKind.ADD);
+	}
+	
+	public MutationInfo change(LocatedElement elem) {
+		return new MutationInfo(this, elem, ChangeKind.CHANGE);
+	}
+	
+	//public MutationInfo info(LocatedElement elem) {
+	//	return new MutationInfo(this, elem);
+	//}
 	
 	// Copied from EMFModel#newElement
 	protected EObject newElement(EClass ec) {

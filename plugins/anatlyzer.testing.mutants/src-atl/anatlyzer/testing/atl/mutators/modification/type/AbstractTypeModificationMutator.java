@@ -86,7 +86,7 @@ public abstract class AbstractTypeModificationMutator extends AbstractMutator {
 
 
 						final EDataTypeEList<String> fComments = comments;
-						registerUndo(wrapper, () -> {
+						registerUndo(wrapper, change((LocatedElement) object2modify_src), () -> {
 							if (fComments!=null) fComments.remove(fComments.size()-1);
 							// copy features from replacement to original object
 							copyFeatures(replacement, oldFeatureValue);
@@ -124,7 +124,7 @@ public abstract class AbstractTypeModificationMutator extends AbstractMutator {
 
 						final int idx = i;
 						final EDataTypeEList<String> fComments = comments;
-						registerUndo(wrapper, () -> {
+						registerUndo(wrapper, change(object2modify), () -> {
 							if (fComments!=null) fComments.remove(fComments.size()-1);
 
 							// copy features from replacement to original object

@@ -70,7 +70,7 @@ public class RSMD extends AbstractModificationMutator {
 					final EDataTypeEList<String>       fComments           = comments;
 					final NavigationOrAttributeCallExp fLastNavigation     = (NavigationOrAttributeCallExp)lastNavigation;
 					final NavigationOrAttributeCallExp fPreviousNavigation = (NavigationOrAttributeCallExp)previousNavigation;
-					registerUndo(wrapper, () -> {
+					registerUndo(wrapper, change((LocatedElement) root), () -> {
 						// remove comment
 						if (fComments!=null) fComments.remove(fComments.size()-1);
 						if (root instanceof Binding)                           
