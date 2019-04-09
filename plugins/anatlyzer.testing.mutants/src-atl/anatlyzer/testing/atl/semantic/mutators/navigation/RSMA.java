@@ -59,7 +59,7 @@ public class RSMA extends NavigationModificationMutator {
 				final EObject root = lastNavigation.eContainer();
 				if (root instanceof OperationCallExp || root instanceof Binding || root instanceof LoopExp || root instanceof InPattern) {
 					
-				    // for each reference of in tpe of last expression, add extra navigation 
+				    // for each reference in type of last expression, add extra navigation 
 				    for (EReference option : mmsource.getEAllReferences()) {
 				    	boolean proceed = true;
 

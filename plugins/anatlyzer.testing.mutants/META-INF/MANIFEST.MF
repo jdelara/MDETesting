@@ -33,6 +33,7 @@ Export-Package: anatlyzer.testing.atl.mutators,
  anatlyzer.testing.atl.mutators.modification.invocation,
  anatlyzer.testing.atl.mutators.modification.type,
  anatlyzer.testing.atl.semantic.mutators.creation,
+ anatlyzer.testing.atl.semantic.mutators.filtering,
  anatlyzer.testing.atl.semantic.mutators.navigation,
  anatlyzer.testing.mutants,
  anatlyzer.testing.ocl.mutators,
@@ -41,4 +42,5 @@ Export-Package: anatlyzer.testing.atl.mutators,
  testing.metamodel.mutators.breaking,
  testing.metamodel.mutators.nonbreaking,
  testing.utils
-Import-Package: anatlyzer.testing.atl.mutators
+Import-Package: anatlyzer.testing.atl.mutators,
+ org.eclipse.m2m.atl.common.OCL
