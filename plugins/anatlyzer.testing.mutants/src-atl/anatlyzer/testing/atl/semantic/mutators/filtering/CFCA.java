@@ -70,7 +70,7 @@ public class CFCA extends NavigationModificationMutator {
 
 							// restore original value
 							final EDataTypeEList<String> fComments = comments;
-							registerUndo(wrapper, () -> {
+							registerUndo(wrapper, change((LocatedElement) root), () -> {
 								// remove comment
 								if (fComments!=null) fComments.remove(fComments.size()-1);
 								// undo changes

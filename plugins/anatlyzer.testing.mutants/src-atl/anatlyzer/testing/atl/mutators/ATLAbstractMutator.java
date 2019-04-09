@@ -51,6 +51,10 @@ public class ATLAbstractMutator {
 		return new MutationInfo(this, elem, ChangeKind.CHANGE);
 	}
 	
+	public MutationInfo replace(LocatedElement elem, LocatedElement replacement) {
+		return new MutationInfo(this, elem, replacement, ChangeKind.REPLACE);
+	}
+	
 	//public MutationInfo info(LocatedElement elem) {
 	//	return new MutationInfo(this, elem);
 	//}

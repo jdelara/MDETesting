@@ -56,7 +56,7 @@ public class CFCD extends FilterDeletionMutator {
 
 				// restore original value
 				final EDataTypeEList<String> fComments = comments;
-				registerUndo(wrapper, () -> {
+				registerUndo(wrapper, replace(oldFilter, trueValue), () -> {
 					if (fComments!=null) fComments.remove(fComments.size()-1);
 					iterator.setBody(oldFilter);
 				});

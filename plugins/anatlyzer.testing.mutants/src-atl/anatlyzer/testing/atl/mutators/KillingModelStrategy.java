@@ -67,15 +67,19 @@ public class KillingModelStrategy implements anatlyzer.testing.atl.mutators.ISto
 			
 			IStorageStrategy strategy = factory.apply((AtlMutantReference) reference);
 
+			PathBasedModelGenerator generator = new PathBasedModelGenerator(r.getAnalyser(), strategy, finder);
 			try {
 				switch(info.getKind()) {
 				case ADD:
 				case CHANGE:
 					element = (LocatedElement) ast.getTarget(changed);
-	
-					PathBasedModelGenerator generator = new PathBasedModelGenerator(r.getAnalyser(), strategy, finder);
 					generator.generateModels(element, IProgressMonitor.NULL);				
 					break;
+				case REPLACE:
+					element = info.getNewTarget();					
+					generator.generateModels(element, IProgressMonitor.NULL);				
+					break;
+					
 				case REMOVE:
 					// Not supported
 					break;

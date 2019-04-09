@@ -221,7 +221,7 @@ public class CFCP extends AbstractMutator {
 	
 	//
 	protected void undo (ATLModel wrapper, EDataTypeEList<String> comments, InPattern inpattern, OclExpression oldFilter) {
-		registerUndo(wrapper, () -> {
+		registerUndo(wrapper, change(oldFilter), () -> {
 			if (comments!=null) comments.remove(comments.size()-1);
 			inpattern.setFilter(oldFilter);
 		});		
@@ -229,7 +229,7 @@ public class CFCP extends AbstractMutator {
 	
 	//
 	protected void undo (ATLModel wrapper, EDataTypeEList<String> comments, IteratorExp iterator, OclExpression oldFilter) {
-		registerUndo(wrapper, () -> {
+		registerUndo(wrapper, change(oldFilter), () -> {
 			if (comments!=null) comments.remove(comments.size()-1);
 			iterator.setBody(oldFilter);
 		});		
