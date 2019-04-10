@@ -47,26 +47,26 @@ public class CFCA extends NavigationModificationMutator {
 					EClass             mmsource  = ((MetaclassImpl)receptorType).getKlass();
 					EStructuralFeature mmfeature = mmsource.getEStructuralFeature(property.getName());
 					if (mmfeature!=null && mmfeature.getUpperBound()!=1) { // collection
-						boolean proceed = true;
-
-						// create filter expression ".asSequence().subSequence(1,1)"
-						OperationCallExp asSequence  = asSequenceSubSequence();
-						OperationCallExp subSequence = subSequence();
-				    	
-				    	// add filter expression
-						if (root instanceof Binding) 
-							((Binding)root).setValue(subSequence);
-						else if (((OperationCallExp)root).getSource()==property)
-							((OperationCallExp)root).setSource(subSequence);
-						else if (((OperationCallExp)root).getArguments().size()>0 && ((OperationCallExp)root).getArguments().get(0)==property) 
-							((OperationCallExp)root).getArguments().set(0, subSequence);
-						else proceed = false;
-
-						if (proceed) {
+						if ( root instanceof Binding || 
+							((OperationCallExp)root).getSource()==property ||
+							(((OperationCallExp)root).getArguments().size()>0 && ((OperationCallExp)root).getArguments().get(0)==property)) {
+							
+							// create filter expression ".asSequence().subSequence(1,1)"
+							OperationCallExp asSequence  = asSequenceSubSequence();
+							OperationCallExp subSequence = subSequence();
+					    	
+					    	// add filter expression
+							if (root instanceof Binding) 
+								((Binding)root).setValue(subSequence);
+							else if (((OperationCallExp)root).getSource()==property)
+								((OperationCallExp)root).setSource(subSequence);
+							else if (((OperationCallExp)root).getArguments().size()>0 && ((OperationCallExp)root).getArguments().get(0)==property) 
+								((OperationCallExp)root).getArguments().set(0, subSequence);
+						
 							asSequence.setSource(property);
 							
 							// mutation: documentation
-							if (comments!=null) comments.add("\n-- MUTATION \"" + this.getDescription() + "\" added filter 'any' after " + toString(property) + " (line " + ((LocatedElement)property).getLocation() + " of original transformation)\n");
+							if (comments!=null) comments.add("\n-- MUTATION \"" + this.getDescription() + "\" added filter '.asSequence().subSequence(1,1)' after " + toString(property) + " (line " + ((LocatedElement)property).getLocation() + " of original transformation)\n");
 
 							// restore original value
 							final EDataTypeEList<String> fComments = comments;
