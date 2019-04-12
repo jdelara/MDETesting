@@ -37,6 +37,7 @@ public class ATLAbstractMutator {
 		if ( ref != null )
 			generatedMutants.add(ref);
 		undo.run();
+		storage.onRestoredTransformation(mutatedModel, info, ref);
 	}
 	
 	public MutationInfo remove(LocatedElement elem) {

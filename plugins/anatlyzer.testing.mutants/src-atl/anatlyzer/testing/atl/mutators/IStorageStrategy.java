@@ -2,9 +2,7 @@ package anatlyzer.testing.atl.mutators;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.Nullable;
@@ -18,6 +16,10 @@ public interface IStorageStrategy {
 
 	@Nullable
 	IMutantReference save(ATLModel atlModel, MutationInfo info);
+
+	default void onRestoredTransformation(ATLModel mutatedModel, MutationInfo info, IMutantReference ref) {
+		// Let specific strategies to implement this
+	}
 
 	public static final IStorageStrategy NULL = new IStorageStrategy() {		
 		@Override
@@ -70,7 +72,7 @@ public interface IStorageStrategy {
 				throw new RuntimeException(e);
 			}
 			
-			return new AtlMutantReference(new File(path));
+			return new AtlMutantReference(new File(path), info.getMutatorName());
 		}
 		
 
@@ -100,6 +102,7 @@ public interface IStorageStrategy {
 		}
 		
 	}
+
 	
 	
 }

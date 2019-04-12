@@ -66,6 +66,10 @@ public class AtlTransformation implements ITransformation {
 
 	public static AtlTransformation fromFile(String fileName,  Object[] metamodels, String[] names) throws LoadException {
 		Resource r = AtlLoader.load(fileName);
+		//if ( r.getErrors().size() > 0 ) {
+		//	throw new IllegalStateException();
+		//}
+		
 		AnalysisLoader loader = AnalysisLoader.fromResource(r, metamodels, names);
 		IAnalyserResult analysis = loader.analyse().getAnalyser();
 		

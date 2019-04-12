@@ -8,7 +8,10 @@ import anatlyzer.testing.mutants.IMutantGenerator.IMutantReference;
 public interface IMutantGenerator<T extends IMutantReference> {
 
 	public interface IMutantReference {
-		
+		/**
+		 * @return the name of the applied mutation
+		 */
+		public String getMutantKind();
 	}
 
 	List<T> generateMutants(IProgressMonitor monitor) throws MutantGeneratorException;

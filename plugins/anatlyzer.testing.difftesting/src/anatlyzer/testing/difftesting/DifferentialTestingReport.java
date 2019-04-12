@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Serializer;
@@ -15,9 +16,11 @@ import org.simpleframework.xml.core.Persister;
 
 import anatlyzer.testing.common.IModel;
 import anatlyzer.testing.common.ITransformation;
+import anatlyzer.testing.common.ITransformationLauncher.TransformationExecutionError;
 import anatlyzer.testing.common.report.AbstractReport;
 import anatlyzer.testing.difftesting.export.ReportModel;
 import anatlyzer.testing.difftesting.export.ReportModel.ReportRecord;
+import anatlyzer.testing.modelgen.IGeneratedModelReference;
 
 public class DifferentialTestingReport extends AbstractReport {
 
@@ -76,16 +79,26 @@ public class DifferentialTestingReport extends AbstractReport {
 	
 	public static class RecordError extends Record {
 		private @NonNull Exception exception;
-
+		private @Nullable Integer erroneousTrafo;
+		
 		public RecordError(@NonNull ITransformation t1, @NonNull ITransformation t2, @NonNull IModel model, @NonNull Exception e) {
 			super(t1, t2, model);
 			this.exception = e;
 		}
 		
+		public RecordError withErroneousTrafo(int i) {
+			this.erroneousTrafo = i;
+			return this;
+		}
+		
 		@Override
 		public @NonNull ReportRecord toExportable() {
-			return super.toExportable()
+			ReportRecord r = super.toExportable()
 					.withException(exception);
+			if ( erroneousTrafo != null ) {
+				r.withErroneousTrafo(erroneousTrafo);
+			}
+			return r;
 		}
 	}
 
@@ -111,6 +124,17 @@ public class DifferentialTestingReport extends AbstractReport {
 		RecordError error = new RecordError(t1, t2, model, e);
 		this.records.add(error);
 	}
+	
+	public void addError(@NonNull ITransformation t1, @NonNull ITransformation t2, @Nullable ITransformation withError, IGeneratedModelReference model, TransformationExecutionError e) {
+		RecordError error = new RecordError(t1, t2, model, e);
+		if ( withError == t1 ) {
+			error.withErroneousTrafo(1);
+		} else if ( withError == t2 ) {
+			error.withErroneousTrafo(2);
+		}
+		this.records.add(error);		
+	}
+
 
 	public void addComparisonMismatch(@NonNull ITransformation t1, @NonNull ITransformation t2, IModel source, IModel target1, IModel target2) {
 		RecordMismatch error = new RecordMismatch(t1, t2, source, target1, target2);
@@ -182,5 +206,4 @@ public class DifferentialTestingReport extends AbstractReport {
 		Serializer serializer = new Persister();
 		return serializer.read(ReportModel.class, f);
 	}
-	
 }

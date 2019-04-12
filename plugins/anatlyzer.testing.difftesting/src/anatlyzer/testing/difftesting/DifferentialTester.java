@@ -73,12 +73,14 @@ public class DifferentialTester<
 			ITransformationLauncher launcher1 = configurator1.configure(this.transformation1, model);
 			ITransformationLauncher launcher2 = configurator2.configure(this.transformation2, model);
 			
+			ITransformation executing = this.transformation1;
 			try {
 				// TODO: Record execution time
 				launcher1.exec();
+				executing = this.transformation2;
 				launcher2.exec();
 			} catch (TransformationExecutionError e) {
-				report.addError(this.transformation1, this.transformation2, model, e);
+				report.addError(this.transformation1, this.transformation2, executing, model, e);
 				if ( ! retryStrategy.continueOnException(e) )
 					break;
 				continue TEST_GENERATED_MODEL;

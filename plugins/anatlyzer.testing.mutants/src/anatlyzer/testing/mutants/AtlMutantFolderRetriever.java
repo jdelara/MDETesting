@@ -2,6 +2,8 @@ package anatlyzer.testing.mutants;
 
 import java.io.File;
 
+import anatlyzer.testing.atl.mutators.IStorageStrategy;
+
 public class AtlMutantFolderRetriever extends FolderBasedMutantRetriever<AtlMutantReference>{
 
 	public AtlMutantFolderRetriever(File file) {
@@ -14,7 +16,8 @@ public class AtlMutantFolderRetriever extends FolderBasedMutantRetriever<AtlMuta
 	
 	@Override
 	protected AtlMutantReference getMutantFromFile(File file) {
-		return new AtlMutantReference(file);
+		String mutantName = IStorageStrategy.FileBasedStartegy.getMutantName(file.getAbsolutePath());		
+		return new AtlMutantReference(file, mutantName);
 	}
 
 

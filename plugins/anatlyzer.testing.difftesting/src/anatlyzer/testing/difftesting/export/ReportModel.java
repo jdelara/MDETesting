@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
@@ -44,6 +45,9 @@ public class ReportModel extends AbstractReportModel {
 
 		@Element(name="mismatch", required=false)
 		private @NonNull String mismatch;
+
+		@Attribute(name="erroneousTrafo", required=false)
+		private @Nullable Integer erroneousTrafo;
 		
 		@NonNull
 		public ReportRecord withTransformation1(String v) {
@@ -105,6 +109,10 @@ public class ReportModel extends AbstractReportModel {
 		
 		public String getMismatch() {
 			return mismatch;
+		}
+
+		public void withErroneousTrafo(@Nullable Integer i) {
+			this.erroneousTrafo = i;
 		}
 	}
 

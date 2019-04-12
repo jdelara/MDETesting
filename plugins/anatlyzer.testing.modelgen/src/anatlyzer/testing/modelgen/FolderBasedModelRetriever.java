@@ -15,6 +15,7 @@ public class FolderBasedModelRetriever implements IModelGenerator {
 	private File folder;
 	private Metamodel metamodel;
 	private Predicate<File> fileFilter = (f) -> true;
+	private boolean recursive;
 
 	public FolderBasedModelRetriever(File file, Metamodel metamodel) {
 		this.folder = file;
@@ -25,11 +26,19 @@ public class FolderBasedModelRetriever implements IModelGenerator {
 		this(new File(fileName), metamodel);
 	}
 
+	public FolderBasedModelRetriever withRecursive(boolean b) {
+		this.recursive = b;
+		return this;
+	}
 
+	public boolean isRecursive() {
+		return recursive;
+	}
+	
 	@Override
 	public List<IGeneratedModelReference> generateModels(IProgressMonitor monitor) {
 		try {
-			return Files.list(folder.toPath())
+			return Files.walk(folder.toPath(), recursive ? Integer.MAX_VALUE : 1)
 				.filter(p -> p.toString().endsWith(".xmi"))
 				.map(p -> p.toFile())
 				.filter(fileFilter)
