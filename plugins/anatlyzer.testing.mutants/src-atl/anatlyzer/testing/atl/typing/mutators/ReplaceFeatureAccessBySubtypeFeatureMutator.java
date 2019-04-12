@@ -10,6 +10,7 @@ import anatlyzer.testing.atl.mutators.modification.feature.NavigationModificatio
 import anatlyzer.testing.mutants.MuMetaModel;
 
 public class ReplaceFeatureAccessBySubtypeFeatureMutator extends NavigationModificationMutator{
+	@Override
 	protected List<Object> featureReplacements (String type, String feature, MuMetaModel metamodel) {
 		List<Object> replacements = new ArrayList<Object>();
 		
