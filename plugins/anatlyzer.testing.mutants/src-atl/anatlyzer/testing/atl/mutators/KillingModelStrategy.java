@@ -1,5 +1,7 @@
 package anatlyzer.testing.atl.mutators;
 
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -44,6 +46,7 @@ public class KillingModelStrategy implements anatlyzer.testing.atl.mutators.ISto
 	}
 
 	private LocatedElement contextOfAddition = null;
+	private @NonNull BiConsumer<IMutantReference, Exception> errorHandler;
 	
 	@Override
 	public @Nullable IMutantReference save(ATLModel atlModel, MutationInfo info) {
@@ -68,29 +71,35 @@ public class KillingModelStrategy implements anatlyzer.testing.atl.mutators.ISto
 		CopiedATLModel ast = originalModel.copyAll();
 		ast.clear();
 		AnalysisLoader loader = AnalysisLoader.fromATLModel(ast, result.getNamespaces());
-		IAnalyserResult r = loader.analyse().getAnalyser();
-
-		// Use the one in the copy
-		changed = (LocatedElement) ast.getTarget(changed);
-		
-		// HelperDeletionMutator_129.atl
-		
-		if ( mutant != null ) {
-			IStorageStrategy strategy = factory.apply((AtlMutantReference) mutant);
-			// Using the original transformation nonetheless
-			try {
-				if ( info.getKind() == ChangeKind.ADD ) {
-					changed = contextOfAddition;
-					contextOfAddition = null;
-				}		
-				
-				PathBasedModelGenerator generator = new PathBasedModelGenerator(r, strategy, finder);
-				generator.generateModels(changed, IProgressMonitor.NULL);
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.out.println("Investigate! " + ((AtlMutantReference) mutant).getFile().getName());
+		try {
+			IAnalyserResult r = loader.analyse().getAnalyser();
+	
+			// Use the one in the copy
+			changed = (LocatedElement) ast.getTarget(changed);
+			
+			// HelperDeletionMutator_129.atl
+			
+			if ( mutant != null ) {
+				IStorageStrategy strategy = factory.apply((AtlMutantReference) mutant);
+				// Using the original transformation nonetheless
+					if ( info.getKind() == ChangeKind.ADD ) {
+						changed = contextOfAddition;
+						contextOfAddition = null;
+					}		
+					
+					PathBasedModelGenerator generator = new PathBasedModelGenerator(r, strategy, finder);
+					generator.generateModels(changed, IProgressMonitor.NULL);
+			}
+		} catch (Exception e) {
+			System.out.println("Error on! " + ((AtlMutantReference) mutant).getFile().getName());
+			if ( errorHandler != null ) {
+				errorHandler.accept(mutant, e);
 			}
 		}
+	}
+
+	public void withModelGeneratorErrorHandler(@NonNull BiConsumer<IMutantReference, Exception> consumer) {
+		this.errorHandler = consumer;
 	}
 	
 	
