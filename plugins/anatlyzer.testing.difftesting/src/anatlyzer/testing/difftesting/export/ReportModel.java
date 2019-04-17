@@ -48,7 +48,13 @@ public class ReportModel extends AbstractReportModel {
 
 		@Attribute(name="erroneousTrafo", required=false)
 		private @Nullable Integer erroneousTrafo;
-		
+
+		@ElementList(name="nonConformantOutputs1", required=false)
+		private @Nullable List<? extends String> nonConformantOutputs1;
+
+		@ElementList(name="nonConformantOutputs2", required=false)
+		private @Nullable List<? extends String> nonConformantOutputs2;
+
 		@NonNull
 		public ReportRecord withTransformation1(String v) {
 			this.transformation1 = v;
@@ -113,6 +119,14 @@ public class ReportModel extends AbstractReportModel {
 
 		public void withErroneousTrafo(@Nullable Integer i) {
 			this.erroneousTrafo = i;
+		}
+
+		public void withNonConformantOutputs1(@Nullable List<? extends String> nonConformantOutputs) {
+			this.nonConformantOutputs1 = nonConformantOutputs;
+		}
+		
+		public void withNonConformantOutputs2(@Nullable List<? extends String> nonConformantOutputs) {
+			this.nonConformantOutputs2 = nonConformantOutputs;
 		}
 	}
 

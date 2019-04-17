@@ -30,6 +30,8 @@ public class DifferentialTestingReport extends AbstractReport {
 		private @NonNull ITransformation t1;
 		private @NonNull ITransformation t2;
 		private @NonNull IModel model;
+		private @Nullable List<? extends String> nonConformantOutputs1;
+		private @Nullable List<? extends String> nonConformantOutputs2;
 		
 		public Record(@NonNull ITransformation t1, @NonNull ITransformation t2, @NonNull IModel model) {
 			this.t1 = t1;
@@ -49,19 +51,27 @@ public class DifferentialTestingReport extends AbstractReport {
 			return model;
 		}
 
-		@ElementList(name="trafo1")
-		protected String getTransformationPath() {
-			return t1.toString();
+		public void addTransformationOutputNotConforming1(@NonNull List<? extends String> nonConformantTargetModels) {
+			this.nonConformantOutputs1 = nonConformantTargetModels;
 		}
 
+		public void addTransformationOutputNotConforming2(@NonNull List<? extends String> nonConformantTargetModels) {
+			this.nonConformantOutputs2 = nonConformantTargetModels;
+		}
+		
 		public @NonNull ReportRecord toExportable() {
 			ReportRecord r = new ReportRecord()
 					.withTransformation1(t1.toString())
 					.withTransformation2(t2.toString())
 					.withInput(model.toString());
+			if ( nonConformantOutputs1 != null ) {
+				r.withNonConformantOutputs1(nonConformantOutputs1);
+			}
+			if ( nonConformantOutputs2 != null ) {
+				r.withNonConformantOutputs2(nonConformantOutputs2);
+			}
 			return r;
 		}
-		
 	}
 
 	public static class RecordOk extends Record {
@@ -136,14 +146,16 @@ public class DifferentialTestingReport extends AbstractReport {
 	}
 
 
-	public void addComparisonMismatch(@NonNull ITransformation t1, @NonNull ITransformation t2, IModel source, IModel target1, IModel target2) {
+	public RecordMismatch addComparisonMismatch(@NonNull ITransformation t1, @NonNull ITransformation t2, IModel source, IModel target1, IModel target2) {
 		RecordMismatch error = new RecordMismatch(t1, t2, source, target1, target2);
-		this.records.add(error);		
+		this.records.add(error);	
+		return error;
 	}
 
-	public void addTestOk(@NonNull ITransformation t1, @NonNull ITransformation t2, IModel model) {
+	public RecordOk addTestOk(@NonNull ITransformation t1, @NonNull ITransformation t2, IModel model) {
 		RecordOk error = new RecordOk(t1, t2, model);
-		this.records.add(error);				
+		this.records.add(error);
+		return error;
 	}
 
 	@NonNull
@@ -206,4 +218,5 @@ public class DifferentialTestingReport extends AbstractReport {
 		Serializer serializer = new Persister();
 		return serializer.read(ReportModel.class, f);
 	}
+
 }

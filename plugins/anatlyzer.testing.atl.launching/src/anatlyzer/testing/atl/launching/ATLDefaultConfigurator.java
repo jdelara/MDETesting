@@ -14,8 +14,7 @@ import anatlyzer.testing.common.ITransformation.ModelSpec;
 import anatlyzer.testing.common.ITransformationConfigurator;
 
 public class ATLDefaultConfigurator implements ITransformationConfigurator<AtlTransformation, AtlLauncher> {
-	private Map<String, BiFunction<AtlTransformation, IModel[], File>> outputPaths = new HashMap<>();
-	
+	protected Map<String, BiFunction<AtlTransformation, IModel[], File>> outputPaths = new HashMap<>();	
 	
 	public ATLDefaultConfigurator withOutputModel(String name, BiFunction<AtlTransformation, IModel[], File> outputMapper) {
 		outputPaths.put(name, outputMapper);

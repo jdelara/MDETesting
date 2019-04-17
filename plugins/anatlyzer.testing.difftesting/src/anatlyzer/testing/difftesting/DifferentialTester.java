@@ -2,8 +2,14 @@ package anatlyzer.testing.difftesting;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.emf.common.util.Diagnostic;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.util.Diagnostician;
 import org.eclipse.jdt.annotation.NonNull;
 
 import anatlyzer.testing.common.FileUtils;
@@ -15,6 +21,9 @@ import anatlyzer.testing.common.ITransformation.ModelSpec;
 import anatlyzer.testing.common.ITransformationConfigurator;
 import anatlyzer.testing.common.ITransformationLauncher;
 import anatlyzer.testing.common.ITransformationLauncher.TransformationExecutionError;
+import anatlyzer.testing.difftesting.DifferentialTestingReport.Record;
+import anatlyzer.testing.difftesting.DifferentialTestingReport.RecordMismatch;
+import anatlyzer.testing.difftesting.DifferentialTestingReport.RecordOk;
 import anatlyzer.testing.modelgen.IGeneratedModelReference;
 import anatlyzer.testing.modelgen.IModelGenerator;
 
@@ -68,9 +77,10 @@ public class DifferentialTester<
 		// 3. Get all generated models 
 		TEST_GENERATED_MODEL:
 		for (IGeneratedModelReference model : generated) {
+			System.out.println("Diff. testing with input model: " + model);
 			//
 			// 3.1 Execute the original and the other
-			ITransformationLauncher launcher1 = configurator1.configure(this.transformation1, model);
+			ITransformationLauncher launcher1 = configurator1.configure(this.transformation1, model);			
 			ITransformationLauncher launcher2 = configurator2.configure(this.transformation2, model);
 			
 			ITransformation executing = this.transformation1;
@@ -89,6 +99,9 @@ public class DifferentialTester<
 				throw new IllegalStateException("Any transformation error should be wrapped into a TransformationExecutionError");
 			}
 		
+			List<String> nonConformantTargetModels0 = new ArrayList<String>();
+			List<String> nonConformantTargetModels1 = new ArrayList<String>();
+			
 			List<? extends ModelSpec> tgts = this.transformation2.getTargets();
 			COMPARE_TARGETS:
 			for (ModelSpec tgt : tgts) {
@@ -96,6 +109,15 @@ public class DifferentialTester<
 				
 				IModel r0 = launcher1.getOutput(tgtModelName);
 				IModel r1 = launcher2.getOutput(tgtModelName);
+				
+				boolean valid0 = validate(r0.getResource());
+				boolean valid1 = validate(r1.getResource());
+				if ( ! valid0 ) {
+					nonConformantTargetModels0.add(tgtModelName);
+				}
+				if ( ! valid1 ) {
+					nonConformantTargetModels1.add(tgtModelName);
+				}
 				
 				if ( saveModels ) {
 					try {
@@ -119,7 +141,8 @@ public class DifferentialTester<
 				System.out.println("Comparing : " + equals);
 				if ( ! equals ) {					
 					System.out.println("Failed comparison!");
-					report.addComparisonMismatch(transformation1, transformation2, model, r0, r1);
+					RecordMismatch record = report.addComparisonMismatch(transformation1, transformation2, model, r0, r1);
+					addNonConformant(record, nonConformantTargetModels0, nonConformantTargetModels1);
 					
 					if ( ! retryStrategy.continueOnComparisonMismatch("<uknown-cause>") )
 						break TEST_GENERATED_MODEL;
@@ -127,12 +150,33 @@ public class DifferentialTester<
 				}
 			}
 			
-			report.addTestOk(transformation1, transformation2, model);
+			RecordOk record = report.addTestOk(transformation1, transformation2, model);
+			addNonConformant(record, nonConformantTargetModels0, nonConformantTargetModels1);
 		}
 		
 		return report;
 	}
 	
+	private void addNonConformant(@NonNull Record record, @NonNull List<? extends String> nonConformantTargetModels0, @NonNull List<? extends String> nonConformantTargetModels1) {
+		if ( ! nonConformantTargetModels0.isEmpty() ) {
+			record.addTransformationOutputNotConforming1(nonConformantTargetModels0);
+		}
+		if ( ! nonConformantTargetModels1.isEmpty() ) {
+			record.addTransformationOutputNotConforming2(nonConformantTargetModels1);
+		}
+		
+	}
+
+	private boolean validate(@NonNull Resource resource) {
+		for (EObject eObject : resource.getContents()) {
+			Diagnostic r = Diagnostician.INSTANCE.validate(eObject);
+			if ( r.getSeverity() == Diagnostic.ERROR ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public DifferentialTester<T1, T2, L1, L2> setOnErrorStrategy(OnErrorStrategy retryStrategy) {
 		this.retryStrategy = retryStrategy;
 		return this;

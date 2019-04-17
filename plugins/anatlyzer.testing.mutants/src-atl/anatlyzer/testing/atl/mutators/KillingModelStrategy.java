@@ -12,6 +12,7 @@ import anatlyzer.atl.analyser.IAnalyserResult;
 import anatlyzer.atl.model.ATLModel;
 import anatlyzer.atl.model.ATLModel.CopiedATLModel;
 import anatlyzer.atl.tests.api.AnalysisLoader;
+import anatlyzer.atl.util.ATLSerializer;
 import anatlyzer.atl.witness.IWitnessFinder;
 import anatlyzer.atlext.ATL.LocatedElement;
 import anatlyzer.testing.atl.mutators.MutationInfo.ChangeKind;
@@ -70,14 +71,13 @@ public class KillingModelStrategy implements anatlyzer.testing.atl.mutators.ISto
 
 		CopiedATLModel ast = originalModel.copyAll();
 		ast.clear();
-		AnalysisLoader loader = AnalysisLoader.fromATLModel(ast, result.getNamespaces());
+
+		AnalysisLoader loader = AnalysisLoader.fromATLModel(ast, result.getNamespaces().copy());
 		try {
 			IAnalyserResult r = loader.analyse().getAnalyser();
 	
 			// Use the one in the copy
 			changed = (LocatedElement) ast.getTarget(changed);
-			
-			// HelperDeletionMutator_129.atl
 			
 			if ( mutant != null ) {
 				IStorageStrategy strategy = factory.apply((AtlMutantReference) mutant);
