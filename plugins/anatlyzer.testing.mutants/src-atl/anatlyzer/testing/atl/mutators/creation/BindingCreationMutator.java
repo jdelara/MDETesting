@@ -8,12 +8,10 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.EDataTypeEList;
-import org.eclipse.m2m.atl.core.emf.EMFModel;
 
 import anatlyzer.atl.model.ATLModel;
 import anatlyzer.atlext.ATL.ATLFactory;
 import anatlyzer.atlext.ATL.Binding;
-import anatlyzer.atlext.ATL.MatchedRule;
 import anatlyzer.atlext.ATL.Module;
 import anatlyzer.atlext.ATL.OutPatternElement;
 import anatlyzer.atlext.ATL.Rule;
