@@ -20,6 +20,7 @@ import anatlyzer.atl.analyser.generators.TransformationSlice;
 import anatlyzer.atl.errors.ProblemStatus;
 import anatlyzer.atl.errors.atl_error.LocalProblem;
 import anatlyzer.atl.graph.AbstractDependencyNode;
+import anatlyzer.atl.graph.FeatureNotSupported;
 import anatlyzer.atl.graph.GenericErrorNode;
 import anatlyzer.atl.graph.GraphNode;
 import anatlyzer.atl.graph.IPathVisitor;
@@ -185,10 +186,15 @@ public class PathBasedModelGenerator extends AbstractModelGenerator implements I
 			// This configuration is not supported by PathGenerator
 			if ( expression instanceof VariableExp && ((VariableExp) expression).getReferredVariable().getVarName().equals("thisModule"))
 				return;
-			
-			OclExpression pathCondition = getPathCondition(generator, expression);
-			
-			paths.add(pathCondition);
+			try {
+				OclExpression pathCondition = getPathCondition(generator, expression);
+				
+				paths.add(pathCondition);
+			} catch ( FeatureNotSupported e ) {
+				// TODO: Record this somehow, for instance, it happens in Bibtex2Docbook, because iterate not supported for inlining
+				System.out.println("Can't generate path for " + expression);
+				e.printStackTrace();
+			}
 		}
 
 		public static OclExpression getPathCondition(PathGenerator generator, LocatedElement element) {
