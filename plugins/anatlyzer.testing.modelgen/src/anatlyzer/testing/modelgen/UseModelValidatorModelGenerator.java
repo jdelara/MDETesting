@@ -118,6 +118,7 @@ public class UseModelValidatorModelGenerator extends AbstractModelGenerator impl
 				System.out.println("Cannot generate model: " + result );
 			}
 
+			System.out.println("Processed model with result: " + result);
 			if ( monitor != null )
 				monitor.workDone("Processed model with result: " + result, 1);
 

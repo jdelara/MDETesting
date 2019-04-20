@@ -28,6 +28,10 @@ import anatlyzer.testing.common.IModel;
 
 public class JGraphtModelComparator implements IComparator {
 
+	private static class IntHolder {
+		int value;
+	}
+	
 	@Override
 	public boolean compare(IModel r0, IModel r1) {
 		@NonNull
@@ -35,8 +39,14 @@ public class JGraphtModelComparator implements IComparator {
 		@NonNull
 		Resource right = r1.getResource();
 		
-		Graph<Node, Edge> g1 = createGraph(left);
-		Graph<Node, Edge> g2 = createGraph(right);
+		IntHolder sizeG1 = new IntHolder();
+		IntHolder sizeG2 = new IntHolder();
+		
+		Graph<Node, Edge> g1 = createGraph(left, -1, sizeG1);
+		Graph<Node, Edge> g2 = createGraph(right, sizeG1.value, sizeG2);
+		
+		if ( sizeG1.value != sizeG2.value )
+			return false;
 		
 		Comparator<Node> vertexComparator = (n1, n2) -> {
 			if ( equalsAttributes(n1.element, n2.element) )
@@ -64,16 +74,38 @@ public class JGraphtModelComparator implements IComparator {
         VF2GraphIsomorphismInspector<Node, Edge> vf2 =
             new VF2GraphIsomorphismInspector<>(g1, g2, vertexComparator, edgeComparator);
 
-//        Iterator<GraphMapping<Node, Edge>> it = vf2.getMappings();
-//        while ( it.hasNext() ) {
-//        	System.out.println(it.next());
+// This doesn't seem to solve the problem, but we just count elements to make sure that we don't create veeery large models for nothing (see above)        
+//        ThreadedExecution threadedExecution = new ThreadedExecution(vf2);
+//        try {
+//        	threadedExecution.start();
+//        	threadedExecution.join();
+//        } catch ( OutOfMemoryError e ) {
+//        	return false; // we don't know, report somehow 
+//        } catch (InterruptedException e) {
+//        	return false; // we don't know, report somehow 
 //        }
-//        
-//        System.out.println(vf2.isomorphismExists());
-//        
+//        return threadedExecution.isIsomorphism();        		
+        
         return vf2.isomorphismExists();
 	}
 
+//	private static class ThreadedExecution extends Thread {
+//		private VF2GraphIsomorphismInspector<Node, Edge> vf2;
+//		private boolean exists;
+//
+//		public ThreadedExecution(VF2GraphIsomorphismInspector<Node, Edge> vf2) {
+//			this.vf2 = vf2;
+//		}
+//
+//		@Override
+//		public void run() {
+//	        this.exists = vf2.isomorphismExists();
+//		}
+//		
+//		public boolean isIsomorphism() {
+//			return exists;
+//		}
+//	}
 
 	private void export(Graph<Node, Edge> g1, Graph<Node, Edge> g2) {
         GraphExporter<Node, Edge> exporter =
@@ -126,12 +158,20 @@ public class JGraphtModelComparator implements IComparator {
 		return true;
 	}
 
-	private Graph<Node, Edge> createGraph(@NonNull Resource r) {
+	private Graph<Node, Edge> createGraph(@NonNull Resource r, int otherSize, IntHolder size) {
+		int nodeSize = 0;
 		Graph<Node, Edge> g = new DefaultDirectedGraph<>(Edge.class);
-		
 		
 		TreeIterator<EObject> it = r.getAllContents();
 		while ( it.hasNext() ) {
+			nodeSize++;
+			if ( otherSize > 0 && nodeSize > otherSize  ) {
+				// We know the graphs are going to be different because the current graph
+				// is larger than the other, so we abort here
+				size.value = nodeSize;
+				return g;
+			}
+			
 			EObject obj = it.next();
 			Node n1 = new Node(obj);
 			g.addVertex(n1);
@@ -159,7 +199,8 @@ public class JGraphtModelComparator implements IComparator {
 				}
 			}
 		}
-		
+
+		size.value = nodeSize;
 		return g;
 	}
 	
