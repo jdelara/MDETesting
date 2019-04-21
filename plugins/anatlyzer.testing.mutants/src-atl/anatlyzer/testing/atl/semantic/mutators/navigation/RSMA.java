@@ -53,14 +53,15 @@ public class RSMA extends NavigationModificationMutator {
 			EStructuralFeature mmfeature;
 			if ((mmsource = (EClass)inputMM.getEClassifier(type))!=null &&
 				(mmfeature = mmsource.getEStructuralFeature(toString(lastNavigation)))!=null &&
-				mmfeature instanceof EReference) {
+				mmfeature instanceof EReference &&
+				confirmAdditionTo((EReference)mmfeature)) {
 				mmsource = (EClass)mmfeature.getEType();
 			
 				final EObject root = lastNavigation.eContainer();
 				if (root instanceof OperationCallExp || root instanceof Binding || root instanceof LoopExp || root instanceof InPattern) {
 					
 				    // for each reference in type of last expression, add extra navigation 
-				    for (EReference option : mmsource.getEAllReferences()) {
+				    for (EReference option : replacements(mmsource)/*mmsource.getEAllReferences()*/) {
 				    	boolean proceed = true;
 
 						// create additional navigation expression 
@@ -119,5 +120,13 @@ public class RSMA extends NavigationModificationMutator {
 	@Override
 	protected List<Object> replacements(EObject object2modify, String currentAttributeValue, MuMetaModel metamodel) {
 		return new ArrayList<Object>();
+	}
+	
+	// override in subclasses to check additional constraints before adding navigation step 
+	protected boolean confirmAdditionTo (EReference reference) { return true; }
+	
+	// override in subclasses to filter the list of references to add as the last step in the navigation
+	protected List<EReference> replacements (EClass sourceclass) {
+		return sourceclass.getEAllReferences();
 	}
 }
