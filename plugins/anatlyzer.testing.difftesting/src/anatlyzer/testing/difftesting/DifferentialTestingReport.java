@@ -32,11 +32,19 @@ public class DifferentialTestingReport extends AbstractReport {
 		private @NonNull IModel model;
 		private @Nullable List<? extends String> nonConformantOutputs1;
 		private @Nullable List<? extends String> nonConformantOutputs2;
+		private long executionTime1;
+		private long executionTime2;
 		
 		public Record(@NonNull ITransformation t1, @NonNull ITransformation t2, @NonNull IModel model) {
 			this.t1 = t1;
 			this.t2 = t2;
 			this.model = model;
+		}
+		
+
+		public void withExecutionTime(long time1, long time2) {
+			this.executionTime1 = time1;
+			this.executionTime2 = time2;
 		}
 		
 		public ITransformation getTransformation1() {
@@ -45,6 +53,14 @@ public class DifferentialTestingReport extends AbstractReport {
 		
 		public ITransformation getTransformation2() {
 			return t2;
+		}
+		
+		public long getExecutionTime1() {
+			return executionTime1;
+		}
+		
+		public long getExecutionTime2() {
+			return executionTime2;
 		}
 		
 		public IModel getModel() {
@@ -64,6 +80,11 @@ public class DifferentialTestingReport extends AbstractReport {
 					.withTransformation1(t1.toString())
 					.withTransformation2(t2.toString())
 					.withInput(model.toString());
+			if ( executionTime1 >= 0 )
+				r.withExecutionTime1(executionTime1);
+			if ( executionTime2 >= 0 )
+				r.withExecutionTime2(executionTime2);
+			
 			if ( nonConformantOutputs1 != null ) {
 				r.withNonConformantOutputs1(nonConformantOutputs1);
 			}
@@ -85,6 +106,7 @@ public class DifferentialTestingReport extends AbstractReport {
 			return super.toExportable()
 					.withStatus("ok");
 		}
+
 	}
 	
 	public static class RecordError extends Record {

@@ -1,19 +1,15 @@
 package anatlyzer.testing.modelgen.random;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.Range;
-import org.apache.commons.math3.distribution.IntegerDistribution;
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 
-import anatlyzer.atl.util.ATLUtils;
 import anatlyzer.atl.witness.IWitnessFinder;
 import anatlyzer.testing.common.IProgressMonitor;
 import anatlyzer.testing.common.Metamodel;
@@ -24,11 +20,6 @@ import anatlyzer.testing.modelgen.IStorageStrategy;
 import fr.inria.atlanmod.instantiator.GenerationException;
 import fr.inria.atlanmod.instantiator.GenericMetamodelConfig;
 import fr.inria.atlanmod.instantiator.GenericMetamodelGenerator;
-import fr.inria.atlanmod.instantiator.GenerationException;
-import fr.inria.atlanmod.instantiator.Launcher;
-
-import java.io.File;
-import java.nio.file.Path;
 
 public class RandomModelGenerator extends AbstractModelGenerator implements IModelGenerator {
 
@@ -38,10 +29,12 @@ public class RandomModelGenerator extends AbstractModelGenerator implements IMod
 	private long 		seed = -1;
 	private float 		sizeVariation = 0.1f;			// allowed variation in model size
 	private int			size = DEFAULT_MODEL_SIZE;		// model size
-	private int			numberOfModels = DEFAULT_NUM_MODELS;		
+	private int			numberOfModels = DEFAULT_NUM_MODELS;
+	private String cacheDir;		
 	
-	public RandomModelGenerator(IStorageStrategy strategy, IWitnessFinder wf, Metamodel m) {
+	public RandomModelGenerator(IStorageStrategy strategy, String cacheDir, IWitnessFinder wf, Metamodel m) {
 		super(strategy, wf);
+		this.cacheDir = cacheDir;
 		this.metamodel = m;
 	}
 
@@ -57,7 +50,7 @@ public class RandomModelGenerator extends AbstractModelGenerator implements IMod
 		GenericMetamodelConfig config = new GenericMetamodelConfig(metamodel.getResource(), range, seed);
 		GenericMetamodelGenerator modelGen = new GenericMetamodelGenerator(config);
 		
-		Path folder = Paths.get("data");
+		Path folder = Paths.get(cacheDir);
 		modelGen.setSamplesPath(folder);
 		
 		ResourceSetImpl resourceSet = new ResourceSetImpl();	
@@ -72,7 +65,7 @@ public class RandomModelGenerator extends AbstractModelGenerator implements IMod
 	}
 	
 	private List<IGeneratedModelReference> getGeneratedModels(GenericMetamodelGenerator mg) {
-		Path folder = Paths.get("data", mg.getMetaModelResourceName());
+		Path folder = Paths.get(cacheDir, mg.getMetaModelResourceName());
 		File [] content = folder.toFile().listFiles();
 		return Arrays.asList(content).stream().
 					map(p -> new IGeneratedModelReference.FileModelReference(p.getAbsolutePath(), metamodel)).

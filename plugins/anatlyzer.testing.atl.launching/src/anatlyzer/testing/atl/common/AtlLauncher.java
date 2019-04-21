@@ -16,10 +16,11 @@ import anatlyzer.testing.common.ITransformationLauncher;
 import anatlyzer.testing.common.Metamodel;
 import anatlyzer.testing.common.Model;
 
-public class AtlLauncher implements ITransformationLauncher {
+public class AtlLauncher implements ITransformationLauncher, ITransformationLauncher.IExecutionTimeRecorder {
 
 	private ATLExecutor executor;
 	private AtlTransformation transformation;
+	private long executionTime = -1;
 
 	public AtlLauncher(@NonNull ATLExecutor executor, @NonNull AtlTransformation t) {
 		this.executor = executor;
@@ -29,12 +30,19 @@ public class AtlLauncher implements ITransformationLauncher {
 	@Override
 	public void exec() throws TransformationExecutionError {
 		try {
+			long initTime = System.currentTimeMillis();
 			executor.perform(transformation.getFileName());
+			this.executionTime  = System.currentTimeMillis() - initTime;
 		} catch (Throwable e) {
 			throw new TransformationExecutionError(e);
 		} 
 	}
 
+	@Override
+	public long getTime() {
+		return executionTime;
+	}
+	
 	@Override
 	public IModel getOutput(String modelName) {
 		Resource r = executor.getModelResource(modelName);

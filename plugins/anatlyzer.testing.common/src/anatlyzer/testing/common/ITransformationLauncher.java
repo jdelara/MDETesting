@@ -19,4 +19,10 @@ public interface ITransformationLauncher {
 			super(t);
 		}		
 	}
+	
+	public static interface IExecutionTimeRecorder {
+		long getTime();
+		
+		// Maybe get more stats
+	}
 }

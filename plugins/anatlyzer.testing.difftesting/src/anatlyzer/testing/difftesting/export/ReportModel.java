@@ -55,6 +55,12 @@ public class ReportModel extends AbstractReportModel {
 		@ElementList(name="nonConformantOutputs2", required=false)
 		private @Nullable List<? extends String> nonConformantOutputs2;
 
+		@Element(name="executionTime1", required=false)
+		private long executionTime1 = -1;
+
+		@Element(name="executionTime2", required=false)
+		private long executionTime2 = -1;
+
 		@NonNull
 		public ReportRecord withTransformation1(String v) {
 			this.transformation1 = v;
@@ -101,6 +107,14 @@ public class ReportModel extends AbstractReportModel {
 			return transformation2;
 		}
 		
+		public long getExecutionTime1() {
+			return executionTime1;
+		}
+		
+		public long getExecutionTime2() {
+			return executionTime2;
+		}
+		
 		public String getException() {
 			return exception;
 		}
@@ -127,6 +141,14 @@ public class ReportModel extends AbstractReportModel {
 		
 		public void withNonConformantOutputs2(@Nullable List<? extends String> nonConformantOutputs) {
 			this.nonConformantOutputs2 = nonConformantOutputs;
+		}
+
+		public void withExecutionTime1(long executionTime) {
+			this.executionTime1 = executionTime;
+		}
+		
+		public void withExecutionTime2(long executionTime) {
+			this.executionTime2 = executionTime;
 		}
 	}
 

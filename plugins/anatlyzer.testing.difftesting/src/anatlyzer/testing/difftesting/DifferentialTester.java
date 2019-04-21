@@ -20,6 +20,7 @@ import anatlyzer.testing.common.ITransformation;
 import anatlyzer.testing.common.ITransformation.ModelSpec;
 import anatlyzer.testing.common.ITransformationConfigurator;
 import anatlyzer.testing.common.ITransformationLauncher;
+import anatlyzer.testing.common.ITransformationLauncher.IExecutionTimeRecorder;
 import anatlyzer.testing.common.ITransformationLauncher.TransformationExecutionError;
 import anatlyzer.testing.difftesting.DifferentialTestingReport.Record;
 import anatlyzer.testing.difftesting.DifferentialTestingReport.RecordMismatch;
@@ -83,12 +84,21 @@ public class DifferentialTester<
 			ITransformationLauncher launcher1 = configurator1.configure(this.transformation1, model);			
 			ITransformationLauncher launcher2 = configurator2.configure(this.transformation2, model);
 			
+			long time1 = -1;
+			long time2 = -1;
+			
 			ITransformation executing = this.transformation1;
 			try {
 				// TODO: Record execution time
 				launcher1.exec();
+				if ( launcher1 instanceof IExecutionTimeRecorder) {
+					time1 = ((IExecutionTimeRecorder) launcher1).getTime();
+				}
 				executing = this.transformation2;
 				launcher2.exec();
+				if ( launcher2 instanceof IExecutionTimeRecorder) {
+					time2 = ((IExecutionTimeRecorder) launcher2).getTime();
+				}				
 			} catch (TransformationExecutionError e) {
 				report.addError(this.transformation1, this.transformation2, executing, model, e);
 				if ( ! retryStrategy.continueOnException(e) )
@@ -143,6 +153,7 @@ public class DifferentialTester<
 					System.out.println("Failed comparison!");
 					RecordMismatch record = report.addComparisonMismatch(transformation1, transformation2, model, r0, r1);
 					addNonConformant(record, nonConformantTargetModels0, nonConformantTargetModels1);
+					record.withExecutionTime(time1, time2);
 					
 					if ( ! retryStrategy.continueOnComparisonMismatch("<uknown-cause>") )
 						break TEST_GENERATED_MODEL;
@@ -151,6 +162,7 @@ public class DifferentialTester<
 			}
 			
 			RecordOk record = report.addTestOk(transformation1, transformation2, model);
+			record.withExecutionTime(time1, time2);
 			addNonConformant(record, nonConformantTargetModels0, nonConformantTargetModels1);
 		}
 		
@@ -168,11 +180,17 @@ public class DifferentialTester<
 	}
 
 	private boolean validate(@NonNull Resource resource) {
-		for (EObject eObject : resource.getContents()) {
-			Diagnostic r = Diagnostician.INSTANCE.validate(eObject);
-			if ( r.getSeverity() == Diagnostic.ERROR ) {
-				return false;
+		try {
+			for (EObject eObject : resource.getContents()) {
+				Diagnostic r = Diagnostician.INSTANCE.validate(eObject);
+				if ( r.getSeverity() == Diagnostic.ERROR ) {
+					return false;
+				}
 			}
+		} catch ( Exception e ) {
+			// For very weird models, it might crash. 
+			// Example: class2table/models-mm/mutant_33.xmi -- class2table/wimmer/mutants/BindingFeatureChange_36.atl
+			return false;
 		}
 		return true;
 	}
