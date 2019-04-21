@@ -20,11 +20,11 @@ import anatlyzer.atlext.ATL.OutPattern;
 import anatlyzer.atlext.ATL.PatternElement;
 import anatlyzer.atlext.OCL.Iterator;
 import anatlyzer.atlext.OCL.LoopExp;
+import anatlyzer.atlext.OCL.OCLFactory;
 import anatlyzer.atlext.OCL.OclExpression;
 import anatlyzer.atlext.OCL.OperationCallExp;
 import anatlyzer.atlext.OCL.VariableDeclaration;
 import anatlyzer.atlext.OCL.VariableExp;
-import anatlyzer.atlext.OCL.impl.VariableExpImpl;
 import anatlyzer.testing.atl.mutators.AbstractMutator;
 import anatlyzer.testing.mutants.MuMetaModel;
 
@@ -97,7 +97,7 @@ public class ReplaceHelperCallParameter extends AbstractMutator {
 	}
 	
 	// 
-	protected VariableExp createVariableExp (VariableDeclaration vd) { VariableExp ve = new VariableExpImpl() {}; ve.setReferredVariable(vd); return ve; }
+	protected VariableExp createVariableExp (VariableDeclaration vd) { VariableExp ve = OCLFactory.eINSTANCE.createVariableExp(); ve.setReferredVariable(vd); return ve; }
 	
 	//
 	protected boolean validReplacement (VariableDeclaration vd1, VariableDeclaration vd2) {
