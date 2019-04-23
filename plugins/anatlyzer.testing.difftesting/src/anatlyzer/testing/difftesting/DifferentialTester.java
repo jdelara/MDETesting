@@ -89,7 +89,6 @@ public class DifferentialTester<
 			
 			ITransformation executing = this.transformation1;
 			try {
-				// TODO: Record execution time
 				launcher1.exec();
 				if ( launcher1 instanceof IExecutionTimeRecorder) {
 					time1 = ((IExecutionTimeRecorder) launcher1).getTime();

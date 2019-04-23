@@ -16,7 +16,8 @@ public class FolderBasedModelRetriever implements IModelGenerator {
 	private Metamodel metamodel;
 	private Predicate<File> fileFilter = (f) -> true;
 	private boolean recursive;
-
+	private int limit = Integer.MAX_VALUE;
+	
 	public FolderBasedModelRetriever(File file, Metamodel metamodel) {
 		this.folder = file;
 		this.metamodel = metamodel;
@@ -43,6 +44,7 @@ public class FolderBasedModelRetriever implements IModelGenerator {
 				.map(p -> p.toFile())
 				.filter(fileFilter)
 				.map(f -> new IGeneratedModelReference.FileModelReference(f.getAbsolutePath(), metamodel))
+				.limit(limit)
 				.collect(Collectors.toList());
 		} catch (IOException e) {
 			throw new IStorageStrategy.StorageException(e);
@@ -51,6 +53,11 @@ public class FolderBasedModelRetriever implements IModelGenerator {
 
 	public FolderBasedModelRetriever withFileFilter(Predicate<File> f) {
 		this.fileFilter  = f;
+		return this;
+	}
+	
+	public FolderBasedModelRetriever withLimit(int limit) {
+		this.limit = limit;
 		return this;
 	}
 
