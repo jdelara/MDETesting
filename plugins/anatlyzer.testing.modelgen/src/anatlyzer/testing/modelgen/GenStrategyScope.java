@@ -12,7 +12,7 @@ public class GenStrategyScope implements IScopeCalculator {
 
 	private Properties properties;
 	private int minDefault = 0;
-	private int maxDefault = 3;
+	private int maxDefault = 0;
 
 	public GenStrategyScope(Properties propertiesUse) {
 		this.properties = propertiesUse;

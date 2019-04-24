@@ -49,7 +49,7 @@ public class RandomModelGenerator extends AbstractModelGenerator implements IMod
 				
 		GenericMetamodelConfig config = new GenericMetamodelConfig(metamodel.getResource(), range, seed);
 		GenericMetamodelGenerator modelGen = new GenericMetamodelGenerator(config);
-		
+
 		Path folder = Paths.get(cacheDir);
 		modelGen.setSamplesPath(folder);
 		

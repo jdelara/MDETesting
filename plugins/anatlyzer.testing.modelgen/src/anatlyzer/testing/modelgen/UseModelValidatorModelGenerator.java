@@ -31,10 +31,33 @@ import anatlyzer.testing.common.Metamodel;
 public class UseModelValidatorModelGenerator extends AbstractModelGenerator implements IModelGenerator {
 
 	public static ModelGenerationStrategy getStrategy(Metamodel metamodel, ModelGenerationStrategy.STRATEGY strategy) {
+		return getStrategy(metamodel, null, strategy);
+	}
+	
+	public static ModelGenerationStrategy getStrategy(Metamodel metamodel, Metamodel viewFilter, ModelGenerationStrategy.STRATEGY strategy) {
 		List<String>     classes    = new ArrayList<String>();
 		List<String>     references = new ArrayList<String>();
 		List<EReference> auxref     = new ArrayList<EReference>();
 		for (EClassifier classifier : metamodel.getEClassifiers()) {
+			if ( viewFilter != null ) {
+				boolean found = false;
+				for (EClassifier filterEClassifier : viewFilter.getEClassifiers()) {
+					//String qNameFilter = filterEClassifier.getEPackage().getName() + "::" + filterEClassifier.getName();
+					//String qName = classifier.getEPackage().getName() + "::" + classifier.getName();
+					// if ( qName.equals(qNameFilter) ) {
+					// This is suboptimal but won't produce really bad results even if there are equal names in different packages
+					// The problem is that we can't guarantee that our prunner outputs the same package name for the footprint
+					if ( filterEClassifier.getName().equals(classifier.getName()) ) {
+						found = true;
+						break;
+					}
+				}
+				
+				if ( ! found ) {
+					continue;
+				}
+			}
+			
 			if (classifier instanceof EClass) {
 				if (!((EClass)classifier).isAbstract()) 
 					classes.add(classifier.getName());
@@ -58,24 +81,25 @@ public class UseModelValidatorModelGenerator extends AbstractModelGenerator impl
 	}
 
 	private Metamodel metamodel;
-	private ModelGenerationStrategy useStrategy;
+	private ModelGenerationStrategy.STRATEGY modelStrategy;
+	private Metamodel metamodelViewFilter;
 
 	public UseModelValidatorModelGenerator(Metamodel m, ModelGenerationStrategy.STRATEGY modelStrategy, IStorageStrategy strategy, IWitnessFinder wf) {
-		this(m, getStrategy(m, modelStrategy), strategy, wf);
+		super(strategy, wf);
+		this.metamodel = m;
+		this.modelStrategy = modelStrategy;
 	}
 	
 	public UseModelValidatorModelGenerator(Resource r, ModelGenerationStrategy.STRATEGY modelStrategy, IStorageStrategy strategy, IWitnessFinder wf) {
-		this(new Metamodel(r), getStrategy(new Metamodel(r), modelStrategy), strategy, wf);
-	}
-	
-	public UseModelValidatorModelGenerator(Metamodel metamodel, ModelGenerationStrategy useStrategy, IStorageStrategy strategy, IWitnessFinder wf) {
 		super(strategy, wf);
-		this.metamodel = metamodel;
-		this.useStrategy = useStrategy;
+		this.metamodel = new Metamodel(r);
+		this.modelStrategy = modelStrategy;
 	}
-	
+		
 	@Override
 	public List<IGeneratedModelReference> generateModels(IProgressMonitor monitor) {
+		ModelGenerationStrategy useStrategy = getStrategy(metamodel, metamodelViewFilter, modelStrategy);
+		
 		List<IGeneratedModelReference> generated = new ArrayList<IGeneratedModelReference>(); 
 		
 		// TODO: This is weird, because useStrategy is an iterator itself, so it is one-shot
@@ -83,7 +107,12 @@ public class UseModelValidatorModelGenerator extends AbstractModelGenerator impl
 			if ( monitor != null && monitor.isCancelled() )
 				break;
 			
-			wf.setWitnessGenerationModel(WitnessGenerationMode.FULL_METAMODEL);			
+			if ( metamodelViewFilter != null ) {
+				wf.setWitnessGenerationModel(WitnessGenerationMode.VIEW_METAMODEL);
+			} else {
+				wf.setWitnessGenerationModel(WitnessGenerationMode.FULL_METAMODEL);
+			}
+			
 			wf.setScopeCalculator(new GenStrategyScope(propertiesUse));
 			
 			// PossibleInvariantViolationNode postcondition = postconditionGenerator.get();
@@ -128,6 +157,12 @@ public class UseModelValidatorModelGenerator extends AbstractModelGenerator impl
 		}
 		
 		return generated;		
+	}
+
+	// This gives a meta-model view (typically a footprint) to only generate models for this subset
+	public AbstractModelGenerator withMetamodelViewFilter(Metamodel filter) {
+		this.metamodelViewFilter = filter;
+		return this;
 	}
 
 	/**
