@@ -131,6 +131,10 @@ public class ReportModel extends AbstractReportModel {
 			return mismatch;
 		}
 
+		public Integer getErroneousTrafo() {
+			return erroneousTrafo;
+		}
+		
 		public void withErroneousTrafo(@Nullable Integer i) {
 			this.erroneousTrafo = i;
 		}

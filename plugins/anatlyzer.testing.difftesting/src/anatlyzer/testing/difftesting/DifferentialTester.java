@@ -87,6 +87,7 @@ public class DifferentialTester<
 			long time1 = -1;
 			long time2 = -1;
 			
+			boolean isTrafo1Ok = false;
 			ITransformation executing = this.transformation1;
 			try {
 				// TODO: Record execution time
@@ -94,12 +95,15 @@ public class DifferentialTester<
 				if ( launcher1 instanceof IExecutionTimeRecorder) {
 					time1 = ((IExecutionTimeRecorder) launcher1).getTime();
 				}
+				isTrafo1Ok = true;
 				executing = this.transformation2;
 				launcher2.exec();
 				if ( launcher2 instanceof IExecutionTimeRecorder) {
 					time2 = ((IExecutionTimeRecorder) launcher2).getTime();
 				}				
 			} catch (TransformationExecutionError e) {
+				if ( ! isTrafo1Ok )
+					throw new IllegalStateException("Trafo1 is failing!");
 				report.addError(this.transformation1, this.transformation2, executing, model, e);
 				if ( ! retryStrategy.continueOnException(e) )
 					break;

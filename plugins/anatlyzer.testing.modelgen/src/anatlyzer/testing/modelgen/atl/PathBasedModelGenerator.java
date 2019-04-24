@@ -188,7 +188,10 @@ public class PathBasedModelGenerator extends AbstractModelGenerator implements I
 				return;
 			try {
 				OclExpression pathCondition = getPathCondition(generator, expression);
-				
+				if ( pathCondition == null ) {
+					System.out.println("Dead code");
+					return;
+				}
 				paths.add(pathCondition);
 			} catch ( FeatureNotSupported e ) {
 				// TODO: Record this somehow, for instance, it happens in Bibtex2Docbook, because iterate not supported for inlining

@@ -80,7 +80,13 @@ public interface IStorageStrategy {
 		public static String getMutantName(String path) {
 			String name = new File(path).getName();
 			
-			return name.substring(0, name.indexOf("_"));	// assuming no "_" in mutant name
+			String mutant = name.substring(0, name.indexOf("_"));	// assuming no "_" in mutant name
+			if ( mutant.contains("\\") ) {
+				int idx = mutant.lastIndexOf("\\");
+				mutant = mutant.substring(idx + 1);
+			}
+			
+			return mutant;
 			
 			// Changed by JL: for some reason the following code does not work for me (returns "r")
 			/*Pattern pattern = Pattern.compile("([A-Za-z])+_[0-9]+\\.atl");
