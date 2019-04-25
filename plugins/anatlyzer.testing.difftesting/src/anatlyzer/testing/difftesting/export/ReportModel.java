@@ -135,8 +135,9 @@ public class ReportModel extends AbstractReportModel {
 			return erroneousTrafo;
 		}
 		
-		public void withErroneousTrafo(@Nullable Integer i) {
+		public ReportRecord withErroneousTrafo(@Nullable Integer i) {
 			this.erroneousTrafo = i;
+			return this;
 		}
 
 		public void withNonConformantOutputs1(@Nullable List<? extends String> nonConformantOutputs) {
@@ -147,6 +148,14 @@ public class ReportModel extends AbstractReportModel {
 			this.nonConformantOutputs2 = nonConformantOutputs;
 		}
 
+		public List<? extends String> getNonConformantOutputs1() {
+			return nonConformantOutputs1;
+		}
+		
+		public List<? extends String> getNonConformantOutputs2() {
+			return nonConformantOutputs2;
+		}
+		
 		public void withExecutionTime1(long executionTime) {
 			this.executionTime1 = executionTime;
 		}

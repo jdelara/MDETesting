@@ -152,6 +152,52 @@ public class DifferentialTestingReport extends AbstractReport {
 		}
 	}
 	
+	public static class RecordOracleFailure extends Record {
+		private @NonNull Exception exception;
+		private @NonNull IModel target1;
+		private @NonNull IModel target2;
+		private boolean fail1;
+		private boolean fail2;
+
+		public RecordOracleFailure(@NonNull ITransformation t1, @NonNull ITransformation t2, @NonNull IModel model, @NonNull IModel target1, @NonNull IModel target2, boolean fail1, boolean fail2) {
+			super(t1, t2, model);
+			this.target1 = target1;
+			this.target2 = target2;
+			this.fail1 = fail1;
+			this.fail2 = fail2;
+		}
+		
+		@Override
+		public @NonNull ReportRecord toExportable() {
+			int erroneousNumber = -1;
+			if ( fail1 && fail2 ) erroneousNumber = 3;
+			else if ( fail1 ) erroneousNumber = 1;
+			else if ( fail2 ) erroneousNumber = 2;
+				
+			return super.toExportable()
+					.withStatus("oracle-failure")
+					.withErroneousTrafo(erroneousNumber);
+		}
+	}
+	
+	public static class RecordSaveError extends Record {
+		private @NonNull Exception exception;
+		
+		public RecordSaveError(@NonNull ITransformation t1, @NonNull ITransformation t2, @NonNull IModel model, @NonNull Exception e) {
+			super(t1, t2, model);
+			this.exception = e;
+		}
+	
+		
+		@Override
+		public @NonNull ReportRecord toExportable() {
+			ReportRecord r = super.toExportable()
+					.withStatus("save-error")
+					.withException(exception);
+			return r;
+		}
+	}
+	
 	public void addError(@NonNull ITransformation t1, @NonNull ITransformation t2, @NonNull IModel model, @NonNull Exception e) {
 		RecordError error = new RecordError(t1, t2, model, e);
 		this.records.add(error);
@@ -167,10 +213,22 @@ public class DifferentialTestingReport extends AbstractReport {
 		this.records.add(error);		
 	}
 
-
+	public RecordSaveError addSaveError(@NonNull ITransformation t1, @NonNull ITransformation t2, @NonNull IModel model, @NonNull Exception e) {
+		RecordSaveError error = new RecordSaveError(t1, t2, model, e);
+		this.records.add(error);
+		return error;
+	}
+	
 	public RecordMismatch addComparisonMismatch(@NonNull ITransformation t1, @NonNull ITransformation t2, IModel source, IModel target1, IModel target2) {
 		RecordMismatch error = new RecordMismatch(t1, t2, source, target1, target2);
 		this.records.add(error);	
+		return error;
+	}
+
+	public RecordOracleFailure addOracleFailure(@NonNull ITransformation t1, @NonNull ITransformation t2,
+			IGeneratedModelReference source, IModel target1, IModel target2, boolean originalResult, boolean otherResult) {
+		RecordOracleFailure error = new RecordOracleFailure(t1, t2, source, target1, target2, originalResult, otherResult);
+		this.records.add(error);
 		return error;
 	}
 
@@ -240,5 +298,6 @@ public class DifferentialTestingReport extends AbstractReport {
 		Serializer serializer = new Persister();
 		return serializer.read(ReportModel.class, f);
 	}
+
 
 }

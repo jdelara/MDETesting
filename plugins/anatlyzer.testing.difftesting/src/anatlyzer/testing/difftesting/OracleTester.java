@@ -1,20 +1,14 @@
 package anatlyzer.testing.difftesting;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.emf.common.util.Diagnostic;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.util.Diagnostician;
 import org.eclipse.jdt.annotation.NonNull;
 
 import anatlyzer.testing.common.FileUtils;
-import anatlyzer.testing.common.IComparator;
 import anatlyzer.testing.common.IModel;
+import anatlyzer.testing.common.IPartialOracle;
 import anatlyzer.testing.common.IProgressMonitor;
 import anatlyzer.testing.common.ITransformation;
 import anatlyzer.testing.common.ITransformation.ModelSpec;
@@ -22,18 +16,22 @@ import anatlyzer.testing.common.ITransformationConfigurator;
 import anatlyzer.testing.common.ITransformationLauncher;
 import anatlyzer.testing.common.ITransformationLauncher.IExecutionTimeRecorder;
 import anatlyzer.testing.common.ITransformationLauncher.TransformationExecutionError;
-import anatlyzer.testing.difftesting.DifferentialTestingReport.Record;
-import anatlyzer.testing.difftesting.DifferentialTestingReport.RecordMismatch;
 import anatlyzer.testing.difftesting.DifferentialTestingReport.RecordOk;
+import anatlyzer.testing.difftesting.DifferentialTestingReport.RecordOracleFailure;
 import anatlyzer.testing.difftesting.DifferentialTestingReport.RecordSaveError;
 import anatlyzer.testing.modelgen.IGeneratedModelReference;
 import anatlyzer.testing.modelgen.IModelGenerator;
 
-public class DifferentialTester<
+/**
+ * This is similar to DifferentialTester. We could try to factorize some code.
+ *  
+ * @author jesus
+ */
+public class OracleTester<
 	T1 extends ITransformation, 
 	T2 extends ITransformation, 
 	L1 extends ITransformationLauncher, 
-	L2 extends ITransformationLauncher> {
+	L2 extends ITransformationLauncher> extends DifferentialTester<T1, T2, L1, L2>{
 
 	
 	private final @NonNull T1 transformation1;
@@ -41,25 +39,26 @@ public class DifferentialTester<
 	private final @NonNull IModelGenerator modelGenerator;
 	private final @NonNull ITransformationConfigurator<T1, L1> configurator1;
 	private final @NonNull ITransformationConfigurator<T2, L2> configurator2;
-	private final @NonNull IComparator comparator;
+	private final @NonNull IPartialOracle oracle;
 	private boolean saveModels;
 	private @NonNull DifferentialTestingReport report;	
 	private OnErrorStrategy retryStrategy = NO_RETRY_STRATEGY;
 	
-	public DifferentialTester(@NonNull T1 trafo1, @NonNull T2 trafo2,
+	public OracleTester(@NonNull T1 trafo1, @NonNull T2 trafo2,
 			@NonNull ITransformationConfigurator<T1, L1> configurator1,
 			@NonNull ITransformationConfigurator<T2, L2> configurator2,
 			@NonNull IModelGenerator modelGenerator,
-			@NonNull IComparator comparator) {
+			@NonNull IPartialOracle oracle) {
+		super(trafo1, trafo2, configurator1, configurator2, modelGenerator, null);
 		this.transformation1 = trafo1;
 		this.transformation2 = trafo2;
 		this.modelGenerator = modelGenerator;
 		this.configurator1 = configurator1;
 		this.configurator2 = configurator2;		
-		this.comparator = comparator;
+		this.oracle = oracle;
 	}
 	
-	public DifferentialTester<T1, T2, L1, L2> withSaveModels(boolean save) {
+	public OracleTester<T1, T2, L1, L2> withSaveModels(boolean save) {
 		this.saveModels = save;
 		return this;
 	}
@@ -150,20 +149,18 @@ public class DifferentialTester<
 						continue TEST_GENERATED_MODEL;
 					}
 				}
+
+				boolean originalResult = oracle.compare(model, r0);
+				boolean otherResult = oracle.compare(model, r1);
 				
-				// 3.2 Compare each one
-				boolean equals = comparator.compare(r0, r1);
-				System.out.println("Comparing : " + equals);
-				if ( ! equals ) {					
-					System.out.println("Failed comparison!");
-					RecordMismatch record = report.addComparisonMismatch(transformation1, transformation2, model, r0, r1);
+				if ( ! originalResult || ! otherResult ) {
+					RecordOracleFailure record = report.addOracleFailure(transformation1, transformation2, model, r0, r1, originalResult, otherResult);
 					addNonConformant(record, nonConformantTargetModels0, nonConformantTargetModels1);
-					record.withExecutionTime(time1, time2);
-					
 					if ( ! retryStrategy.continueOnComparisonMismatch("<unknown-cause>") )
 						break TEST_GENERATED_MODEL;
-					continue TEST_GENERATED_MODEL;
+					continue TEST_GENERATED_MODEL;					
 				}
+				
 			}
 			
 			RecordOk record = report.addTestOk(transformation1, transformation2, model);
@@ -173,63 +170,4 @@ public class DifferentialTester<
 		
 		return report;
 	}
-	
-	protected void addNonConformant(@NonNull Record record, @NonNull List<? extends String> nonConformantTargetModels0, @NonNull List<? extends String> nonConformantTargetModels1) {
-		if ( ! nonConformantTargetModels0.isEmpty() ) {
-			record.addTransformationOutputNotConforming1(nonConformantTargetModels0);
-		}
-		if ( ! nonConformantTargetModels1.isEmpty() ) {
-			record.addTransformationOutputNotConforming2(nonConformantTargetModels1);
-		}
-		
-	}
-
-	protected boolean validate(@NonNull Resource resource) {
-		try {
-			for (EObject eObject : resource.getContents()) {
-				Diagnostic r = Diagnostician.INSTANCE.validate(eObject);
-				if ( r.getSeverity() == Diagnostic.ERROR ) {
-					return false;
-				}
-			}
-		} catch ( Exception e ) {
-			// For very weird models, it might crash. 
-			// Example: class2table/models-mm/mutant_33.xmi -- class2table/wimmer/mutants/BindingFeatureChange_36.atl
-			return false;
-		}
-		return true;
-	}
-
-	public DifferentialTester<T1, T2, L1, L2> setOnErrorStrategy(OnErrorStrategy retryStrategy) {
-		this.retryStrategy = retryStrategy;
-		return this;
-	}
-	
-	public static interface OnErrorStrategy {
-		public boolean continueOnException(Exception e);
-		public boolean continueOnComparisonMismatch(String cause);
-	}
-
-	public static class OnErrorStrategyImpl implements OnErrorStrategy {
-		private boolean onException;
-		private boolean onMismatch;
-
-		public OnErrorStrategyImpl(boolean onException, boolean onMismatch) {
-			this.onException = onException;
-			this.onMismatch = onMismatch;
-		}
-		
-		@Override
-		public boolean continueOnException(Exception e) {
-			return onException;
-		}
-		
-		@Override
-		public boolean continueOnComparisonMismatch(String cause) {
-			return onMismatch;
-		}
-	}
-	
-	public static final OnErrorStrategy NO_RETRY_STRATEGY = new OnErrorStrategyImpl(false, false);
-	public static final OnErrorStrategy ALWAYS_RETRY_STRATEGY = new OnErrorStrategyImpl(true, true);	
 }
