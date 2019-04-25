@@ -156,23 +156,23 @@ public class DifferentialTestingReport extends AbstractReport {
 		private @NonNull Exception exception;
 		private @NonNull IModel target1;
 		private @NonNull IModel target2;
-		private boolean fail1;
-		private boolean fail2;
+		private boolean oracleResult1;
+		private boolean oracleResult2;
 
-		public RecordOracleFailure(@NonNull ITransformation t1, @NonNull ITransformation t2, @NonNull IModel model, @NonNull IModel target1, @NonNull IModel target2, boolean fail1, boolean fail2) {
+		public RecordOracleFailure(@NonNull ITransformation t1, @NonNull ITransformation t2, @NonNull IModel model, @NonNull IModel target1, @NonNull IModel target2, boolean oracleResult1, boolean oracleResult2) {
 			super(t1, t2, model);
 			this.target1 = target1;
 			this.target2 = target2;
-			this.fail1 = fail1;
-			this.fail2 = fail2;
+			this.oracleResult1 = oracleResult1;
+			this.oracleResult2 = oracleResult2;
 		}
 		
 		@Override
 		public @NonNull ReportRecord toExportable() {
 			int erroneousNumber = -1;
-			if ( fail1 && fail2 ) erroneousNumber = 3;
-			else if ( fail1 ) erroneousNumber = 1;
-			else if ( fail2 ) erroneousNumber = 2;
+			if ( !oracleResult1 && !oracleResult1 ) erroneousNumber = 3;
+			else if ( !oracleResult1) erroneousNumber = 1;
+			else if ( !oracleResult2 ) erroneousNumber = 2;
 				
 			return super.toExportable()
 					.withStatus("oracle-failure")

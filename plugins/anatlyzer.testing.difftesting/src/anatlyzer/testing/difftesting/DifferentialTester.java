@@ -36,15 +36,15 @@ public class DifferentialTester<
 	L2 extends ITransformationLauncher> {
 
 	
-	private final @NonNull T1 transformation1;
-	private final @NonNull T2 transformation2;
-	private final @NonNull IModelGenerator modelGenerator;
-	private final @NonNull ITransformationConfigurator<T1, L1> configurator1;
-	private final @NonNull ITransformationConfigurator<T2, L2> configurator2;
-	private final @NonNull IComparator comparator;
-	private boolean saveModels;
-	private @NonNull DifferentialTestingReport report;	
-	private OnErrorStrategy retryStrategy = NO_RETRY_STRATEGY;
+	protected final @NonNull T1 transformation1;
+	protected final @NonNull T2 transformation2;
+	protected final @NonNull IModelGenerator modelGenerator;
+	protected final @NonNull ITransformationConfigurator<T1, L1> configurator1;
+	protected final @NonNull ITransformationConfigurator<T2, L2> configurator2;
+	protected final @NonNull IComparator comparator;
+	protected boolean saveModels;
+	protected @NonNull DifferentialTestingReport report;	
+	protected OnErrorStrategy retryStrategy = NO_RETRY_STRATEGY;
 	
 	public DifferentialTester(@NonNull T1 trafo1, @NonNull T2 trafo2,
 			@NonNull ITransformationConfigurator<T1, L1> configurator1,

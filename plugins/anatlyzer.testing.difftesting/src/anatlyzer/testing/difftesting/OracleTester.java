@@ -33,36 +33,18 @@ public class OracleTester<
 	L1 extends ITransformationLauncher, 
 	L2 extends ITransformationLauncher> extends DifferentialTester<T1, T2, L1, L2>{
 
-	
-	private final @NonNull T1 transformation1;
-	private final @NonNull T2 transformation2;
-	private final @NonNull IModelGenerator modelGenerator;
-	private final @NonNull ITransformationConfigurator<T1, L1> configurator1;
-	private final @NonNull ITransformationConfigurator<T2, L2> configurator2;
-	private final @NonNull IPartialOracle oracle;
-	private boolean saveModels;
-	private @NonNull DifferentialTestingReport report;	
-	private OnErrorStrategy retryStrategy = NO_RETRY_STRATEGY;
-	
+		
+	private @NonNull IPartialOracle oracle;
+
 	public OracleTester(@NonNull T1 trafo1, @NonNull T2 trafo2,
 			@NonNull ITransformationConfigurator<T1, L1> configurator1,
 			@NonNull ITransformationConfigurator<T2, L2> configurator2,
 			@NonNull IModelGenerator modelGenerator,
 			@NonNull IPartialOracle oracle) {
 		super(trafo1, trafo2, configurator1, configurator2, modelGenerator, null);
-		this.transformation1 = trafo1;
-		this.transformation2 = trafo2;
-		this.modelGenerator = modelGenerator;
-		this.configurator1 = configurator1;
-		this.configurator2 = configurator2;		
 		this.oracle = oracle;
 	}
-	
-	public OracleTester<T1, T2, L1, L2> withSaveModels(boolean save) {
-		this.saveModels = save;
-		return this;
-	}
-	
+		
 	/**
 	 * Executes the tester
 	 * @return 
