@@ -3,16 +3,15 @@ package anatlyzer.testing.atl.mutators;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.text.NavigationFilter;
-
 import anatlyzer.testing.atl.mutators.creation.BindingCreationMutator;
 import anatlyzer.testing.atl.mutators.creation.InElementCreationMutator;
 import anatlyzer.testing.atl.mutators.creation.OutElementCreationMutator;
 import anatlyzer.testing.atl.mutators.deletion.ArgumentDeletionMutator;
 import anatlyzer.testing.atl.mutators.deletion.BindingDeletionMutator;
 import anatlyzer.testing.atl.mutators.deletion.FilterDeletionMutator;
-import anatlyzer.testing.atl.mutators.deletion.HelperContextDeletionMutator;
 import anatlyzer.testing.atl.mutators.deletion.HelperDeletionMutator;
+import anatlyzer.testing.atl.mutators.deletion.InElementDeletionMutator;
+import anatlyzer.testing.atl.mutators.deletion.OutElementDeletionMutator;
 import anatlyzer.testing.atl.mutators.deletion.ParameterDeletionMutator;
 import anatlyzer.testing.atl.mutators.deletion.ParentRuleDeletionMutator;
 import anatlyzer.testing.atl.mutators.deletion.RuleDeletionMutator;
@@ -34,7 +33,6 @@ import anatlyzer.testing.atl.mutators.modification.type.InElementModificationMut
 import anatlyzer.testing.atl.mutators.modification.type.OutElementModificationMutator;
 import anatlyzer.testing.atl.mutators.modification.type.ParameterModificationMutator;
 import anatlyzer.testing.atl.mutators.modification.type.VariableModificationMutator;
-import anatlyzer.testing.ocl.mutators.InvariantMutatorStrategy;
 
 /**
  * A registry for mutators
@@ -76,8 +74,8 @@ public interface IMutatorRegistry {
 			addMutator(new BindingDeletionMutator());
 			addMutator(new FilterDeletionMutator());
 			addMutator(new HelperDeletionMutator());
-			addMutator(new InElementCreationMutator());
-			addMutator(new OutElementCreationMutator());
+			addMutator(new InElementDeletionMutator());
+			addMutator(new OutElementDeletionMutator());
 			addMutator(new ParameterDeletionMutator());
 			addMutator(new ParentRuleDeletionMutator());
 			addMutator(new RuleDeletionMutator());
