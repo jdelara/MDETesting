@@ -103,7 +103,7 @@ public class DifferentialTester<
 				}				
 			} catch (TransformationExecutionError e) {
 				if ( ! isTrafo1Ok )
-					throw new IllegalStateException("Trafo1 is failing!");
+					throw new IllegalStateException("Trafo1 is failing!", e);
 				report.addError(this.transformation1, this.transformation2, executing, model, e);
 				if ( ! retryStrategy.continueOnException(e) )
 					break;

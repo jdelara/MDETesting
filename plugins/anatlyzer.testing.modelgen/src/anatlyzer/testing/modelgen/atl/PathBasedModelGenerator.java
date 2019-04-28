@@ -1,15 +1,20 @@
 package anatlyzer.testing.modelgen.atl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jdt.annotation.NonNull;
 
 import analyser.atl.problems.IDetectedProblem;
+import anatlyzer.atl.analyser.Analyser;
 import anatlyzer.atl.analyser.IAnalyserResult;
 import anatlyzer.atl.analyser.generators.CSPGenerator;
 import anatlyzer.atl.analyser.generators.CSPModel;
@@ -34,12 +39,17 @@ import anatlyzer.atl.witness.ConstraintSatisfactionChecker;
 import anatlyzer.atl.witness.IWitnessFinder;
 import anatlyzer.atl.witness.UseWitnessFinder;
 import anatlyzer.atl.witness.IWitnessFinder.WitnessGenerationMode;
+import anatlyzer.atlext.ATL.ContextHelper;
+import anatlyzer.atlext.ATL.Helper;
 import anatlyzer.atlext.ATL.LocatedElement;
 import anatlyzer.atlext.ATL.Unit;
 import anatlyzer.atlext.OCL.BooleanExp;
+import anatlyzer.atlext.OCL.Iterator;
+import anatlyzer.atlext.OCL.IteratorExp;
 import anatlyzer.atlext.OCL.NavigationOrAttributeCallExp;
 import anatlyzer.atlext.OCL.OCLFactory;
 import anatlyzer.atlext.OCL.OclExpression;
+import anatlyzer.atlext.OCL.OclModelElement;
 import anatlyzer.atlext.OCL.OperationCallExp;
 import anatlyzer.atlext.OCL.PropertyCallExp;
 import anatlyzer.atlext.OCL.VariableDeclaration;
@@ -125,14 +135,19 @@ public class PathBasedModelGenerator extends AbstractModelGenerator implements I
 		wf.setWitnessGenerationModel(WitnessGenerationMode.MANDATORY_FULL_METAMODEL);
 		// wf.setScopeCalculator(new GenStrategyScope(propertiesUse));
 		
-		if ( wf instanceof UseWitnessFinder ) {
-			((UseWitnessFinder) wf).withRetyingStrategy(RetypingStrategy.NULL);
-			((UseWitnessFinder) wf).setPreferDeclaredTypes(true);
-		}
+//		if ( wf instanceof UseWitnessFinder ) {
+//			((UseWitnessFinder) wf).withRetyingStrategy(RetypingStrategy.NULL);
+//			((UseWitnessFinder) wf).setPreferDeclaredTypes(true);
+//		}
 		
+		Set<Helper> helpers = new HashSet<>();
+		addRequiredHelpers(path, helpers);
+				
 		ConstraintSatisfactionChecker checker = ConstraintSatisfactionChecker.
 				withExpr(path).
-				withFinder(wf);
+				withRequiredHelpers(helpers).
+				withFinder(wf).
+				withGlobal("thisModule");
 
 		for(Map.Entry<String, Resource> mm : trafo.getNamespaces().getLogicalNamesToMetamodels().entrySet()) {
 			checker.configureMetamodel(mm.getKey(), mm.getValue());
@@ -161,6 +176,30 @@ public class PathBasedModelGenerator extends AbstractModelGenerator implements I
 		
 		if ( monitor != null )
 			monitor.workDone("Processed model with result: " + result, 1);	
+	}
+
+	private void addRequiredHelpers(@NonNull OclExpression path, Set<Helper> helpers) {
+		TreeIterator<EObject> it = path.eAllContents();
+		while ( it.hasNext() ) {
+			EObject obj = it.next();
+			if ( obj instanceof PropertyCallExp ) {
+				List<Helper> resolvers = new ArrayList<Helper>( ((PropertyCallExp) obj).getDynamicResolvers() );
+				if ( ((PropertyCallExp) obj).getStaticResolver() instanceof Helper ) {
+					resolvers.add((Helper) ((PropertyCallExp) obj).getStaticResolver());
+				}
+				
+				for (Helper helper : resolvers) {
+					if ( helpers.contains(helper) )
+						continue;
+
+					helpers.add(helper);
+					
+					OclExpression body = ATLUtils.getHelperBody(helper);
+					addRequiredHelpers(body, helpers);
+				}
+				
+			}
+		}		
 	}
 
 	private static class PathComputationVisitor extends AbstractVisitor {
