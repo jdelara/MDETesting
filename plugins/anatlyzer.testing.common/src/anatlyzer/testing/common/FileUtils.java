@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -26,12 +28,16 @@ public class FileUtils {
 		folder.delete();
 	}
 	
+	private static Lock folderLock = new ReentrantLock(); 
+	
 	/**
 	 * It creates a directory.
 	 * @param folder name of directory
 	 */
 	public static void createDirectory (String directory) {
+		folderLock.lock();
 		new File(directory).mkdirs();
+		folderLock.unlock();
 	}
 
 	public static <T> List<T> getFiles(File folder, String extension, Predicate<File> pred, Function<File, T> mapper) throws IOException {

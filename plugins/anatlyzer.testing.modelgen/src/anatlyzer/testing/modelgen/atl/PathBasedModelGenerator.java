@@ -32,6 +32,7 @@ import anatlyzer.atl.graph.IPathVisitor;
 import anatlyzer.atl.graph.PathGenerator;
 import anatlyzer.atl.graph.ProblemNode;
 import anatlyzer.atl.graph.ProblemPath;
+import anatlyzer.atl.util.ATLCopier;
 import anatlyzer.atl.util.ATLSerializer;
 import anatlyzer.atl.util.ATLUtils;
 import anatlyzer.atl.util.AnalyserUtils;
@@ -143,9 +144,14 @@ public class PathBasedModelGenerator extends AbstractModelGenerator implements I
 		Set<Helper> helpers = new HashSet<>();
 		addRequiredHelpers(path, helpers);
 				
+		Set<Helper > copiedHelpers = new HashSet<>();
+		for (Helper helper : helpers) {
+			copiedHelpers.add((Helper) ATLCopier.copySingleElement(helper));
+		}
+		
 		ConstraintSatisfactionChecker checker = ConstraintSatisfactionChecker.
 				withExpr(path).
-				withRequiredHelpers(helpers).
+				withRequiredHelpers(copiedHelpers).
 				withFinder(wf).
 				withGlobal("thisModule");
 
@@ -153,9 +159,16 @@ public class PathBasedModelGenerator extends AbstractModelGenerator implements I
 			checker.configureMetamodel(mm.getKey(), mm.getValue());
 		}
 		
-		checker.check();
+		ProblemStatus result = null;
+		try {
+			checker.check();
+		} catch ( Exception e ) {
+			result = ProblemStatus.IMPL_INTERNAL_ERROR;
+			e.printStackTrace();
+			// TODO: This should not happen but...
+		}
 
-		ProblemStatus result = checker.getFinderResult();
+		result = checker.getFinderResult();
 		
 		Metamodel metamodel;
 		if ( metamodels.size() == 1 ) {
@@ -236,6 +249,9 @@ public class PathBasedModelGenerator extends AbstractModelGenerator implements I
 				// TODO: Record this somehow, for instance, it happens in Bibtex2Docbook, because iterate not supported for inlining
 				System.out.println("Can't generate path for " + expression);
 				e.printStackTrace();
+			} catch ( Exception e ) {
+				System.out.println("Internal error" + e);
+				e.printStackTrace();				
 			}
 		}
 
