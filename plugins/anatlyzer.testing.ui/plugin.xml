@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <!-- Definition of the createAbstract syntax command and menu option -->   
+	<extension point="org.eclipse.ui.commands">
+    	<command
+             categoryId="anatlyzerCategory"
+             id="anatlyzer.testing.ui.commands.ModelGenerationWizard"
+             name="Model Generation"/>
+	</extension>
+
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="anatlyzer.testing.ui.commands.OpenModelGenerationWizardHandler"
+            commandId="anatlyzer.testing.ui.commands.ModelGenerationWizard">
+      </handler>
+  </extension>
+
+   <extension
+         point="org.eclipse.ui.menus">
+   
+      <menuContribution
+            locationURI="popup:anatlyzer.atl.editor.popup?after=additions">
+            <command
+                  commandId="anatlyzer.testing.ui.commands.ModelGenerationWizard"
+                  id="anatlyzer.testing.ui.commands.ModelGenerationWizard.menu"
+                  mnemonic="S">
+            </command>
+      </menuContribution>
+      
+   </extension>
+
+</plugin>
