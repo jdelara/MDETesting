@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: AnATLyzer Testing Junit
+Bundle-SymbolicName: anatlyzer.testing.junit
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: anatlyzer.testing.junit.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ anatlyzer.testing.launching;bundle-version="1.0.0";visibility:=reexport,
+ anatlyzer.testing.common;bundle-version="1.0.0";visibility:=reexport,
+ anatlyzer.testing.comparison.emfcompare;visibility:=reexport,
+ anatlyzer.atl.standalone.api;bundle-version="0.7.1";visibility:=reexport,
+ org.junit,
+ org.eclipse.m2m.atl.core;bundle-version="4.1.0";visibility:=reexport,
+ org.eclipse.m2m.atl.dsls;bundle-version="4.1.0";visibility:=reexport,
+ org.eclipse.m2m.atl.core.emf;bundle-version="4.1.0";visibility:=reexport,
+ anatlyzer.testing.modelgen,
+ anatlyzer.atl.editor
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: anatlyzer.testing.junit

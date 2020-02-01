@@ -52,12 +52,9 @@ public class AtlLauncher implements ITransformationLauncher, ITransformationLaun
 		if ( r == null ) {
 			r = new XMIResourceImpl(URI.createURI("file:/" + modelData.getModelPath()));
 		}
-		
-		Metamodel mm = transformation.getTargets().stream().
-			filter(t -> t.getModelName().equals(modelName)).
-			findAny().
-			get().getMetamodel();
-		
+
+		Resource mmResource = executor.getMetamodelResource(modelName);
+		Metamodel mm = new Metamodel(mmResource);
 		
 		Model m = new Model(r, mm);
 		m.addAttribute(File.class, new File(modelData.getModelPath()));

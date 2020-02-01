@@ -9,7 +9,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jface,
  org.eclipse.swt,
  anatlyzer.atl.editor,
- anatlyzer.testing.modelgen
+ anatlyzer.testing.modelgen,
+ org.eclipse.jdt.junit;bundle-version="3.10.51"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: anatlyzer.testing.common

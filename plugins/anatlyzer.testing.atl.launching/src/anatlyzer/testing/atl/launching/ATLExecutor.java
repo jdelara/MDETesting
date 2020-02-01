@@ -320,6 +320,10 @@ public class ATLExecutor {
 		return getModel(name).getResource();
 	}
 	
+	public Resource getMetamodelResource(String name) {
+		return getModel(name).getReferenceModel().getResource();
+	}
+	
 	public EMFModel getModel(String name) {		
 		if ( launcher == null )
 			throw new IllegalStateException();

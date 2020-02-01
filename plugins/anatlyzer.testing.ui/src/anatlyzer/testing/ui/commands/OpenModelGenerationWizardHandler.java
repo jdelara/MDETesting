@@ -119,7 +119,7 @@ public class OpenModelGenerationWizardHandler extends AbstractHandler {
 			if (trafoDir == null)
 				return Status.CANCEL_STATUS;
 
-			IFolder generationDir = getOrCreateFolder(trafoDir, kind.name().toString());
+			IFolder generationDir = getOrCreateFolder(trafoDir, kind.name().toLowerCase().toString() + "-coverage");
 			if (generationDir == null)
 				return Status.CANCEL_STATUS;
 
