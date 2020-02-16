@@ -26,11 +26,7 @@ import org.jgrapht.io.GraphExporter;
 import anatlyzer.testing.common.IComparator;
 import anatlyzer.testing.common.IModel;
 
-public class JGraphtModelComparator implements IComparator {
-
-	private static class IntHolder {
-		int value;
-	}
+public class JGraphtModelComparator extends AbstractJGraphtComparator implements IComparator {
 	
 	@Override
 	public boolean compare(IModel r0, IModel r1) {
@@ -107,26 +103,7 @@ public class JGraphtModelComparator implements IComparator {
 //		}
 //	}
 
-	private void export(Graph<Node, Edge> g1, Graph<Node, Edge> g2) {
-        GraphExporter<Node, Edge> exporter =
-        		new DOTExporter<>(v -> v.getId().
-        				replaceAll("\\{|\\}|/|#|-|@|:", "").
-        				replaceAll("org.eclipse.emf.ecore.impl.DynamicEObjectImpl", "").
-        				replaceAll("\\.", ""), v -> v.toString(), null);
-		try {
-			exporter.exportGraph(g1, new FileOutputStream("/tmp/g1.dot"));
-			exporter.exportGraph(g2, new FileOutputStream("/tmp/g2.dot"));
-		} catch (FileNotFoundException | ExportException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        
-		System.out.println(g1);
-		System.out.println(g2);
-	}
-	
-	
-	private boolean equalsAttributes(EObject e1, EObject e2) {
+	protected boolean equalsAttributes(EObject e1, EObject e2) {
 		// TODO: Use qualified names, etc. The metamodel uris must be the same, but the actual ecore instances may not be
 		if ( ! e1.eClass().getName().equals(e2.eClass().getName() )) 
 			return false;
@@ -157,109 +134,23 @@ public class JGraphtModelComparator implements IComparator {
 		
 		return true;
 	}
-
-	private Graph<Node, Edge> createGraph(@NonNull Resource r, int otherSize, IntHolder size) {
-		int nodeSize = 0;
-		Graph<Node, Edge> g = new DefaultDirectedGraph<>(Edge.class);
-		
-		TreeIterator<EObject> it = r.getAllContents();
-		while ( it.hasNext() ) {
-			nodeSize++;
-			if ( otherSize > 0 && nodeSize > otherSize  ) {
-				// We know the graphs are going to be different because the current graph
-				// is larger than the other, so we abort here
-				size.value = nodeSize;
-				return g;
-			}
-			
-			EObject obj = it.next();
-			Node n1 = new Node(obj);
-			g.addVertex(n1);
-			
-			for (EStructuralFeature f : obj.eClass().getEStructuralFeatures()) {
-				if ( f.isDerived() ) 
-					continue;
-				if ( f instanceof EAttribute )
-					continue;
-				
-				if ( f.isMany() ) {
-					Collection<EObject> elements = (Collection<EObject>) obj.eGet(f);
-					for (EObject e : elements) {
-						Node n2 = new Node(e);
-						g.addVertex(n2);
-						g.addEdge(n1, n2);						
-					}
-				} else {
-					EObject e = (EObject) obj.eGet(f);
-					if ( e != null ) {
-						Node n2 = new Node(e);
-						g.addVertex(n2);
-						g.addEdge(n1, n2);
-					}
-				}
-			}
-		}
-
-		size.value = nodeSize;
-		return g;
-	}
 	
-	public static class Node {
-		private EObject element;
-
-		public Node(EObject obj) {
-			this.element = obj;
+	private void export(Graph<Node, Edge> g1, Graph<Node, Edge> g2) {
+        GraphExporter<Node, Edge> exporter =
+        		new DOTExporter<>(v -> v.getId().
+        				replaceAll("\\{|\\}|/|#|-|@|:", "").
+        				replaceAll("org.eclipse.emf.ecore.impl.DynamicEObjectImpl", "").
+        				replaceAll("\\.", ""), v -> v.toString(), null);
+		try {
+			exporter.exportGraph(g1, new FileOutputStream("/tmp/g1.dot"));
+			exporter.exportGraph(g2, new FileOutputStream("/tmp/g2.dot"));
+		} catch (FileNotFoundException | ExportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
-		public String getId() {
-			return EcoreUtil.getIdentification(element);
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((element == null) ? 0 : element.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Node other = (Node) obj;
-			if (element == null) {
-				if (other.element != null)
-					return false;
-			} else if (!element.equals(other.element))
-				return false;
-			return true;
-		}
-		
-		@Override
-		public String toString() {
-			return element.eClass().getName();
-		}
+        
+		System.out.println(g1);
+		System.out.println(g2);
 	}
-	
-	@SuppressWarnings("serial")
-	public static class Edge extends DefaultEdge {
-		
-		@Override
-		public Node getSource() {
-			return (Node) super.getSource();
-		}
-		
-		@Override
-		public Node getTarget() {
-			return (Node) super.getTarget();
-		}
-		
-	}
-
 	
 }
